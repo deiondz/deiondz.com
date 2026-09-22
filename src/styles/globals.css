@@ -195,11 +195,11 @@ h1 {
 	color: #71717a;
 	font-size: var(--text-ui);
 	line-height: 1.5;
-	animation: tagline-in 0.3s ease-out;
 }
 .profile-links {
 	display: flex;
 	flex-wrap: wrap;
+	align-items: center;
 	gap: 14px;
 	margin-top: 10px;
 	color: #52525b;
@@ -209,15 +209,17 @@ h1 {
 	text-decoration: underline;
 	text-underline-offset: 3px;
 }
-@keyframes tagline-in {
-	from {
-		transform: translateY(8px);
-		opacity: 0;
-	}
-	to {
-		transform: translateY(0);
-		opacity: 1;
-	}
+.profile-links .contact-link {
+	padding: 6px 10px;
+	border-radius: 6px;
+	background: #18181b;
+	color: #fff;
+	font-weight: 500;
+}
+.profile-links .contact-link:hover {
+	background: #3f3f46;
+	color: #fff;
+	text-decoration: none;
 }
 .about,
 .contributions,
@@ -445,6 +447,9 @@ h2 {
 	line-height: 1.55;
 	text-wrap: pretty;
 	overflow-wrap: break-word;
+}
+.project-details[hidden] {
+	display: none;
 }
 .project-details > p + p {
 	margin-top: 16px;

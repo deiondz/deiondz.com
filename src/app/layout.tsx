@@ -9,14 +9,15 @@ const rethinkSans = Rethink_Sans({
 	variable: "--font-rethink-sans",
 });
 
-const title = "Deion D'Souza — Growth Engineer";
+const title = "Deion D'Souza | Growth Engineer at Manasija AI";
 const description =
-	"Deion D'Souza works across product engineering, developer relations, and growth at Manasija AI.";
+	"Deion D'Souza is a Growth Engineer at Manasija AI. Explore his work on Drishti, developer onboarding, and product development.";
 
 export const metadata: Metadata = {
 	metadataBase: new URL("https://deiondz.com"),
 	title,
 	description,
+	alternates: { canonical: "/" },
 	icons: [{ rel: "icon", url: "/favicon.svg" }],
 	openGraph: {
 		type: "website",

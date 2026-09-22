@@ -4,13 +4,6 @@ import Image from "next/image";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import graphData from "./contributions.json";
 
-const taglines = [
-	"Growth Engineer at Manasija AI",
-	"Founding Engineer",
-	"Building for Indian markets",
-	"Developer relations and product growth",
-];
-
 const projects = [
 	{
 		id: "shadcn-fullcalender",
@@ -72,7 +65,7 @@ const experience = [
 		period: "Jul 2026 — Present",
 		location: "Mangalore, India",
 		description:
-			"Working across customer acquisition, developer relations, support, content, and automation for Drishti. I help customers discover the product, get started, and bring their feedback into product improvements.",
+			"I work on Drishti's customer acquisition, developer onboarding, support, content, and automation. I bring customer feedback back to the product team.",
 	},
 	{
 		role: "Founding Engineer",
@@ -364,8 +357,11 @@ function Projects() {
 								<Icon name="chevron" />
 							</button>
 						</div>
-						{open === project.id && (
-							<div className="project-details" id={`details-${project.id}`}>
+						<div
+							className="project-details"
+							hidden={open !== project.id}
+							id={`details-${project.id}`}
+						>
 								<p>{project.description}</p>
 								<ul>
 									{project.features.map((feature) => (
@@ -387,8 +383,7 @@ function Projects() {
 										? "Visit Drishti ↗"
 										: "View repository ↗"}
 								</a>
-							</div>
-						)}
+						</div>
 					</article>
 				))}
 			</div>
@@ -397,7 +392,6 @@ function Projects() {
 }
 
 export default function HomePage() {
-	const [tagline, setTagline] = useState(0);
 	const [time, setTime] = useState("");
 	const [size, setSize] = useState("");
 	const bottomGridRef = useRef<HTMLDivElement>(null);
@@ -414,14 +408,9 @@ export default function HomePage() {
 		};
 		update();
 		const clock = window.setInterval(update, 1000);
-		const flip = window.setInterval(
-			() => setTagline((current) => (current + 1) % taglines.length),
-			2500,
-		);
 		window.addEventListener("resize", update);
 		return () => {
 			window.clearInterval(clock);
-			window.clearInterval(flip);
 			window.removeEventListener("resize", update);
 		};
 	}, []);
@@ -460,11 +449,12 @@ export default function HomePage() {
 					/>
 					<div>
 						<h1>Deion D&apos;Souza</h1>
-						<p className="tagline" key={tagline}>
-							{taglines[tagline]}
-						</p>
+						<p className="tagline">Growth Engineer at Manasija AI</p>
 						<div className="profile-links">
-							<a href="mailto:deiondsouza12@gmail.com">Email</a>
+							<a className="contact-link" href="mailto:deiondsouza12@gmail.com">
+								Email me
+							</a>
+							<a href="#projects">View projects</a>
 							<a
 								href="https://github.com/deiondz"
 								rel="noopener noreferrer"
@@ -485,15 +475,13 @@ export default function HomePage() {
 				<section className="about">
 					<h2>About</h2>
 					<p>
-						I&apos;m an engineer working across product development and growth
-						at Manasija AI. I helped build financial software for Indian
-						markets, then moved into customer acquisition, developer relations,
-						support, content, and internal automation.
+						I started as a founding engineer at Manasija AI, working on
+						Drishti&apos;s APIs and live market updates. Now I work on developer
+						onboarding, support, and customer acquisition for Drishti.
 					</p>
 					<p>
-						My work spans Drishti&apos;s APIs and live market updates,
-						Myuki&apos;s web and desktop experience, billing systems, and the
-						guides and workflows that help developers use these products.
+						I&apos;ve also built Myuki&apos;s Electron app and worked on its web
+						experience, billing, releases, and internal automation.
 					</p>
 				</section>
 				<section className="contributions">
