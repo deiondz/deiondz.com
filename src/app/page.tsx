@@ -65,7 +65,7 @@ const experience = [
 		period: "Jul 2026 — Present",
 		location: "Mangalore, India",
 		description:
-			"Supports Drishti's customer acquisition and developer onboarding through documentation, support, content, and automation. Brings recurring customer feedback into product work.",
+			"I work on Drishti's customer acquisition, developer onboarding, support, content, and automation. I bring customer feedback back to the product team.",
 	},
 	{
 		role: "Founding Engineer",
@@ -475,15 +475,13 @@ export default function HomePage() {
 				<section className="about">
 					<h2>About</h2>
 					<p>
-						Deion D&apos;Souza is a growth engineer at Manasija AI. He helps
-						developers get started with Drishti, supports customers when they
-						get stuck, and brings their feedback into documentation and daily
-						workflows.
+						I started as a founding engineer at Manasija AI, working on
+						Drishti&apos;s APIs and live market updates. Now I work on developer
+						onboarding, support, and customer acquisition for Drishti.
 					</p>
 					<p>
-						Previously, as a founding engineer, he worked on Drishti&apos;s APIs
-						and live market updates, Myuki&apos;s web and Electron apps, billing,
-						releases, and internal automation.
+						I&apos;ve also built Myuki&apos;s Electron app and worked on its web
+						experience, billing, releases, and internal automation.
 					</p>
 				</section>
 				<section className="contributions">
