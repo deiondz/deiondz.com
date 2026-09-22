@@ -1,0 +1,11 @@
+{
+	"version": 1,
+	"skills": {
+		"typography-scale": {
+			"source": "owl-listener/designer-skills",
+			"sourceType": "github",
+			"skillPath": "ui-design/skills/typography-scale/SKILL.md",
+			"computedHash": "16d7c5af2f5aea5c291c0f48120b2f88b0979e23a2a568cb8bab8b47c381d2ae"
+		}
+	}
+}
