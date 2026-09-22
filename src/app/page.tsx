@@ -475,13 +475,15 @@ export default function HomePage() {
 				<section className="about">
 					<h2>About</h2>
 					<p>
-						I started as a founding engineer at Manasija AI, working on
-						Drishti&apos;s APIs and live market updates. Now I work on developer
-						onboarding, support, and customer acquisition for Drishti.
+						I help developers and customers get unstuck. At Manasija AI, that
+						means answering technical questions, guiding onboarding, and
+						turning recurring problems into clearer documentation and feedback
+						the team can act on.
 					</p>
 					<p>
-						I&apos;ve also built Myuki&apos;s Electron app and worked on its web
-						experience, billing, releases, and internal automation.
+						My experience across engineering, growth, and operations helps me
+						follow an issue from the first conversation to the fix, whether
+						it needs a code change, a better process, or a clearer explanation.
 					</p>
 				</section>
 				<section className="contributions">
