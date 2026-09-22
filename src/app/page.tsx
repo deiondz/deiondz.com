@@ -451,7 +451,7 @@ export default function HomePage() {
 						<h1>Deion D&apos;Souza</h1>
 						<p className="tagline">Growth Engineer at Manasija AI</p>
 						<div className="profile-links">
-							<a className="contact-link" href="mailto:deiondsouza12@gmail.com">
+							<a href="mailto:deiondsouza12@gmail.com">
 								Email me
 							</a>
 							<a href="#projects">View projects</a>
