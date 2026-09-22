@@ -331,10 +331,12 @@ h2 {
 .experience-meta {
 	margin-top: 3px;
 }
-.projects sup {
-	margin-left: 4px;
-	color: #71717a;
-	font-size: var(--text-ui);
+.project-count {
+	margin-left: 6px;
+	color: #52525b;
+	font-size: 0.9em;
+	font-weight: 600;
+	font-variant-numeric: tabular-nums;
 }
 .project {
 	border: 2px solid #f4f4f5;

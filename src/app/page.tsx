@@ -120,7 +120,7 @@ const skillGroups = [
 		skills: [
 			{ name: "REST APIs", logo: null },
 			{ name: "WebSockets", logo: null },
-			{ name: "MCP", logo: null },
+			{ name: "MCP", logo: "mcp" },
 			{ name: "PostgreSQL", logo: "postgresql" },
 			{ name: "MongoDB", logo: "mongodb" },
 			{ name: "Supabase", logo: "supabase" },
@@ -156,14 +156,6 @@ function SkillIcon({ name }: { name: string }) {
 		WebSockets: (
 			<>
 				<path d="M4 7h14l-3-3m3 3-3 3M20 17H6l3-3m-3 3 3 3" />
-			</>
-		),
-		MCP: (
-			<>
-				<circle cx="5" cy="12" r="2" />
-				<circle cx="19" cy="5" r="2" />
-				<circle cx="19" cy="19" r="2" />
-				<path d="m7 11 10-5M7 13l10 5" />
 			</>
 		),
 	};
@@ -300,7 +292,7 @@ function Projects() {
 	return (
 		<section className="projects" id="projects">
 			<h2>
-				Projects <sup>({projects.length})</sup>
+				Projects <span className="project-count">({projects.length})</span>
 			</h2>
 			<div className="project-list">
 				{projects.map((project) => (
