@@ -26,9 +26,9 @@ export const metadata: Metadata = {
 		description,
 		images: [
 			{
-				url: "/og-image-social.jpg",
+				url: "/og-image-1200x630.jpg",
 				width: 1200,
-				height: 675,
+				height: 630,
 				type: "image/jpeg",
 				alt: "Deion D'Souza portfolio preview",
 			},
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
 		card: "summary_large_image",
 		title,
 		description,
-		images: ["/og-image-social.jpg"],
+		images: ["/og-image-1200x630.jpg"],
 	},
 };
 
