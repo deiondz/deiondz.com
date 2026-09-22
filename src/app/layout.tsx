@@ -12,6 +12,8 @@ const rethinkSans = Rethink_Sans({
 const title = "Deion D'Souza | Growth Engineer at Manasija AI";
 const description =
 	"Deion D'Souza is a Growth Engineer at Manasija AI. Explore his work on Drishti, developer onboarding, and product development.";
+const socialImage =
+	"https://raw.githubusercontent.com/deiondz/deiondz.com/main/public/og-image-1200x630.jpg";
 
 export const metadata: Metadata = {
 	metadataBase: new URL("https://deiondz.com"),
@@ -26,7 +28,7 @@ export const metadata: Metadata = {
 		description,
 		images: [
 			{
-				url: "/og-image-1200x630.jpg",
+				url: socialImage,
 				width: 1200,
 				height: 630,
 				type: "image/jpeg",
@@ -38,7 +40,7 @@ export const metadata: Metadata = {
 		card: "summary_large_image",
 		title,
 		description,
-		images: ["/og-image-1200x630.jpg"],
+		images: [socialImage],
 	},
 };
 
