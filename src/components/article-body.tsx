@@ -5,6 +5,7 @@ import {
 	BlocksRenderer,
 } from "@strapi/blocks-react-renderer";
 import Image from "next/image";
+import CodeBlock from "./code-block";
 
 export function ArticleBody({ content }: { content: BlocksContent }) {
 	return (
@@ -20,11 +21,7 @@ export function ArticleBody({ content }: { content: BlocksContent }) {
 							| "h6";
 						return <Heading>{children}</Heading>;
 					},
-					code: ({ plainText }) => (
-						<pre>
-							<code>{plainText}</code>
-						</pre>
-					),
+					code: ({ plainText }) => <CodeBlock code={plainText || ""} />,
 					image: ({ image }) => (
 						<figure>
 							<Image
