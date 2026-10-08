@@ -15,6 +15,14 @@
 .ui-badge:hover {
 	background: #eaeaec;
 }
+.ui-badge-selector {
+	border: 0;
+	cursor: pointer;
+}
+.ui-badge-selector[aria-pressed="true"] {
+	background: #e4e4e7;
+	color: #18181b;
+}
 .ui-badge-closable {
 	padding-right: 4px;
 }

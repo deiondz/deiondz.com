@@ -95,7 +95,6 @@
 	border: 0;
 	padding: 0;
 }
-.blog-filters button,
 .blog-empty button,
 .blog-pagination button,
 .article-share button {
@@ -110,11 +109,6 @@
 	background: #fff;
 	color: #3f3f46;
 	font-size: var(--text-ui);
-}
-.blog-filters button[aria-pressed="true"] {
-	border-color: #18181b;
-	background: #f4f4f5;
-	color: #18181b;
 }
 .blog-results {
 	margin: 24px 0 12px;

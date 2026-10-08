@@ -6,11 +6,11 @@ import {
 	ArrowUpRight,
 	BookOpen,
 	Search,
+	X,
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { BadgeClosable } from "~/components/badge-closable";
-import { Badge } from "~/components/ui/badge";
+import { Badge, BadgeButton } from "~/components/ui/badge";
 import Image from "~/components/site-image";
 import type { Article } from "~/lib/blog";
 
@@ -96,7 +96,7 @@ export function BlogList({ articles }: { articles: ListedArticle[] }) {
 				{categories.length > 0 && (
 					<fieldset className="blog-filters">
 						<legend className="sr-only">Filter by category</legend>
-						<button
+						<BadgeButton
 							aria-pressed={!category}
 							onClick={() => {
 								setCategory("");
@@ -105,26 +105,24 @@ export function BlogList({ articles }: { articles: ListedArticle[] }) {
 							type="button"
 						>
 							All posts
-						</button>
+						</BadgeButton>
 						{categories.map((item) => (
-							<button
+							<BadgeButton
 								aria-pressed={category === item.slug}
+                                aria-label={category === item.slug ? `Remove ${item.name}` : item.name}
 								key={item.slug}
 								onClick={() => {
-									setCategory(item.slug);
+									setCategory(category === item.slug ? "" : item.slug);
 									setPage(1);
 								}}
 								type="button"
 							>
 								{item.name}
-							</button>
+                                {category === item.slug && <X aria-hidden="true" size={12} />}
+							</BadgeButton>
 						))}
 					</fieldset>
 				)}
-                {category && <BadgeClosable
-                    tags={categories.filter(item => item.slug === category).map(item => ({id: item.slug, label: item.name}))}
-                    onRemove={() => { setCategory(""); setPage(1); }}
-                />}
 			</div>
 			<p aria-live="polite" className="blog-results">
 				{filtered.length} {filtered.length === 1 ? "post" : "posts"}
