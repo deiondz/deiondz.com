@@ -77,11 +77,15 @@ def deploy(sha, run_id, attempt):
             raise RuntimeError('Origin homepage differs from the uploaded build.')
         if json.loads(origin_get('/deployment.json')) != marker:
             raise RuntimeError('Origin release marker did not match.')
+        for relative, url in [('blog/index.html', '/blog/'), ('blog/feed.xml', '/blog/feed.xml')]:
+            generated = release / relative
+            if generated.is_file() and hashlib.sha256(origin_get(url)).digest() != hashlib.sha256(generated.read_bytes()).digest():
+                raise RuntimeError(f'Origin blog page did not match: {relative}')
         for asset in assets:
             body = origin_get('/' + asset.relative_to(release).as_posix())
             if hashlib.sha256(body).digest() != hashlib.sha256(asset.read_bytes()).digest():
                 raise RuntimeError(f'Origin asset did not match: {asset.name}')
-        print(f'Deployed {sha}; origin homepage, JavaScript, and CSS verified.', flush=True)
+        print(f'Deployed {sha}; origin pages, RSS, JavaScript, and CSS verified.', flush=True)
     except BaseException:
         if switched:
             activate(previous)

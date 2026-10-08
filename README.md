@@ -2,6 +2,40 @@
 
 Static Next.js portfolio at https://deiondz.com, served by Nginx on the SSH host `deion`.
 
+## Blog and Strapi
+
+The blog lives at `/blog/`; the homepage has no blog sections or featured posts.
+It uses the existing Article and Category content types in https://strapi.deiondz.com.
+Only published articles are exported. Drafts remain in Strapi.
+
+In Strapi's Content Manager, create an Article with a title, a unique lowercase
+hyphenated slug, and rich-text content. Excerpts, cover images, and categories
+are optional. Save the entry, then publish it. Images use Strapi's media library;
+set their alternative text there. The frontend supports rich text, lists, links,
+quotes, code, and inline images.
+
+GitHub checks for published content changes every 15 minutes, at minutes 7, 22,
+37, and 52. Unchanged content skips the build and deployment. Scheduler delays
+are possible. Publishing, unpublishing, deleting, or editing published content
+is reflected by the next successful rebuild. For an immediate refresh, run the
+Portfolio CI/CD workflow manually on `main` from GitHub's Actions tab.
+
+The blog includes search, category filters, pagination, dates, reading time,
+article sharing, metadata, JSON-LD, `/blog/feed.xml`, and `/sitemap.xml`.
+
+For local development, copy `.env.example` to `.env.local` and set the dedicated
+read token. This clone is already configured. `npm run dev` and `npm run build`
+sync Strapi first. After editing content while the dev server is running, use
+`npm run blog:sync` and refresh the page. Generated content in `.blog-cache/`
+and `public/blog-version.json` is ignored by Git; no token is included in browser
+bundles or artifacts. A CMS failure stops the build and preserves the live release.
+Pull requests from forks use an empty offline snapshot without CMS credentials.
+
+Repository Actions secret: `STRAPI_READ_TOKEN` (Article/Category read permissions).
+Repository variable: `STRAPI_URL`. These are already configured. Tests include
+published-only handling, safe links, pagination, and unchanged-content detection:
+`node --test scripts/blog.test.mjs`.
+
 ## Local development
 
 Requires Node.js 24 and Bun 1.4.2.
@@ -42,7 +76,7 @@ Older commits are skipped when they no longer match GitHub's `main` branch.
 GitHub builds the site and uploads the exact tested artifact over SSH.
 The server stores it under `/var/www/deiondz.com/releases/<sha>-<run>-<attempt>`
 and atomically switches the `current` symlink. Nginx continues serving requests
-without a reload. The receiver checks the origin homepage, JavaScript, CSS, and
+without a reload. The receiver checks the origin homepage, blog, RSS, JavaScript, CSS, and
 release marker; a failed origin health check restores the previous release.
 GitHub then verifies https://deiondz.com/deployment.json against the deployed commit.
 A public verification failure marks the run failed; origin rollback is handled
@@ -66,7 +100,7 @@ The receiver source is `scripts/deploy/receive.py`; its root-owned installed cop
 is `/usr/local/lib/deiondz-deploy/receive.py` on `deion`. Receiver changes require
 an administrator to reinstall that file. `scripts/deploy/bootstrap.sh` installs
 the receiver and dedicated public key when run as root with those two file paths.
-Only deploy jobs on `main` receive secrets.
+Only deploy jobs on `main` receive deployment secrets; build jobs use the CMS read token.
 Production jobs are serialized and finish before the next deployment starts.
 
 To roll back, use your administrator SSH access and atomically activate a retained release:

@@ -6,6 +6,8 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
+  schedule:
+    - cron: '7,22,37,52 * * * *'
 
 permissions:
   contents: read
@@ -15,8 +17,13 @@ jobs:
     name: Lint, typecheck, and build
     runs-on: ubuntu-24.04
     timeout-minutes: 15
+    outputs:
+      deploy: ${{ steps.content.outputs.deploy }}
     env:
       NEXT_TELEMETRY_DISABLED: '1'
+      STRAPI_URL: ${{ vars.STRAPI_URL }}
+      STRAPI_READ_TOKEN: ${{ secrets.STRAPI_READ_TOKEN }}
+      BLOG_OFFLINE: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork && '1' || '' }}
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -28,16 +35,25 @@ jobs:
         with:
           bun-version: '1.4.2'
       - run: bun install --frozen-lockfile
+      - name: Sync published Strapi articles
+        id: content
+        run: node scripts/sync-blog.mjs
+      - name: Test CMS content handling
+        run: node --test scripts/blog.test.mjs
       - name: Test deployment validation and rollback
         run: python3 scripts/deploy/test_receive.py
       - run: bun run lint
       - run: bun run build
+        if: steps.content.outputs.deploy == 'true'
       - run: bun run typecheck
+        if: steps.content.outputs.deploy == 'true'
       - name: Package the static site
+        if: steps.content.outputs.deploy == 'true'
         run: |
           test -s out/index.html
           tar -czf portfolio.tar.gz -C out .
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: steps.content.outputs.deploy == 'true'
         with:
           name: portfolio
           path: portfolio.tar.gz
@@ -47,7 +63,7 @@ jobs:
   deploy:
     name: Deploy to deiondz.com
     needs: build
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && needs.build.outputs.deploy == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     concurrency:
@@ -122,3 +138,8 @@ jobs:
           print('Verified public release:', release['sha'])
           PY
           curl -fsS --retry 3 --retry-all-errors --max-time 20 https://deiondz.com/ -o /dev/null
+          curl -fsS --retry 3 --retry-all-errors --max-time 20 https://deiondz.com/blog/ -o /dev/null
+          curl -fsS --retry 3 --retry-all-errors --max-time 20 https://deiondz.com/blog/feed.xml -o /dev/null
+          curl -fsS --retry 3 --retry-all-errors --max-time 20 \
+            "https://deiondz.com/blog-version.json?run=$RUN_ID-$RUN_ATTEMPT" > blog-version.json
+          tar -xOf portfolio.tar.gz ./blog-version.json | cmp - blog-version.json

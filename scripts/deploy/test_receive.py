@@ -37,6 +37,8 @@ class ReceiverTests(unittest.TestCase):
             'index.html': b'<html>portfolio</html>',
             '_next/static/test.js': b'console.log("portfolio")',
             '_next/static/test.css': b'body { color: black; }',
+            'blog/index.html': b'<html>blog</html>',
+            'blog/feed.xml': b'<rss version="2.0"></rss>',
         }
 
     def tearDown(self):
@@ -44,7 +46,9 @@ class ReceiverTests(unittest.TestCase):
         self.temporary.cleanup()
 
     def origin(self, path):
-        name = path.lstrip('/') or 'index.html'
+        name = path.lstrip('/')
+        if not name or name.endswith('/'):
+            name += 'index.html'
         return (self.base / 'current' / name).read_bytes()
 
     def deploy(self, stream):
@@ -59,6 +63,15 @@ class ReceiverTests(unittest.TestCase):
 
     def test_origin_failure_restores_previous_release(self):
         with archive(self.files) as stream, patch.object(receive, 'origin_get', return_value=b'wrong'):
+            with self.assertRaises(RuntimeError):
+                self.deploy(stream)
+        self.assertEqual((self.base / 'current').resolve(), self.previous)
+
+    def test_blog_failure_restores_previous_release(self):
+        def origin(path):
+            return b'wrong' if path == '/blog/' else self.origin(path)
+
+        with archive(self.files) as stream, patch.object(receive, 'origin_get', origin):
             with self.assertRaises(RuntimeError):
                 self.deploy(stream)
         self.assertEqual((self.base / 'current').resolve(), self.previous)

@@ -42,5 +42,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 
+# Published CMS snapshots are generated locally and in CI.
+/.blog-cache/
+/public/blog-version.json
+
 # idea files
 .idea
