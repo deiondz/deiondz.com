@@ -2,6 +2,7 @@
 
 import { ArrowUpRight, ChevronDown } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import graphData from "./contributions.json";
 
@@ -457,6 +458,25 @@ export default function HomePage() {
 					<p>
 						Customer conversations reveal where people get stuck. That feedback
 						guides improvements to interfaces, onboarding, and documentation.
+					</p>
+					<p className="writing-note">
+						Also{" "}
+						<Link aria-label="Read the blog" className="writing-link" href="/blog/">
+							<span>write</span>
+							<svg
+								aria-hidden="true"
+								className="writing-smiley"
+								fill="none"
+								stroke="currentColor"
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								strokeWidth="1.6"
+								viewBox="0 0 36 36"
+							>
+								<path d="M28.5 8.5C22.5 2.4 11.2 4 6.5 12.2c-4.8 8.2.2 17.8 9.1 19 9.2 1.3 16.7-5.3 15.8-14.1-.3-3.8-2.4-7.8-5-9.6" />
+								<path d="m12.5 13.7-.5 3.2m10.1-3.8-.2 3.1M11.5 21c2.6 6.1 10.1 6.5 14 .2" />
+							</svg>
+						</Link>
 					</p>
 				</section>
 				<section className="contributions">

@@ -230,6 +230,40 @@ h2 {
 .about p + p {
 	margin-top: 16px;
 }
+.writing-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	color: #18181b;
+	font-weight: 500;
+	vertical-align: middle;
+}
+.writing-link span {
+	padding: 0 3px;
+	background: linear-gradient(
+		transparent 48%,
+		#f8e6a0 48%,
+		#f8e6a0 91%,
+		transparent 91%
+	);
+	text-decoration: underline;
+	text-decoration-color: #bda04f;
+	text-underline-offset: 3px;
+}
+.writing-link:where(:hover) span {
+	text-decoration-color: #18181b;
+}
+.writing-link:focus-visible {
+	outline: 2px solid #18181b;
+	outline-offset: 4px;
+	border-radius: 3px;
+}
+.writing-smiley {
+	width: 30px;
+	height: 30px;
+	flex: none;
+	transform: rotate(-9deg);
+}
 .activity {
 	width: 100%;
 	font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
