@@ -36,6 +36,9 @@
 .article-back:hover {
 	text-decoration: underline;
 }
+.blog-search-slot input:focus-visible {
+	outline: none;
+}
 .blog-shell :focus-visible {
 	outline: 2px solid #18181b;
 	outline-offset: 4px;
@@ -48,7 +51,7 @@
 }
 .blog-archive-heading {
 	display: flex;
-	align-items: baseline;
+	align-items: center;
 	justify-content: space-between;
 	gap: 16px;
 	margin-bottom: 16px;
@@ -64,25 +67,22 @@
 	display: grid;
 	gap: 16px;
 }
-.blog-search input {
-	width: 100%;
-	min-height: 44px;
-	border: 1px solid #d4d4d8;
-	border-radius: 8px;
-	padding: 10px 14px 10px 40px;
-	background: #fff;
-	color: #18181b;
-	font: inherit;
+.blog-search-slot {
+    position: relative;
+    flex: 1;
+    min-width: 40px;
+    max-width: 280px;
+    height: 40px;
 }
-.blog-search {
-	position: relative;
-}
-.blog-search > svg {
-	position: absolute;
-	top: 14px;
-	left: 14px;
-	color: #71717a;
-	pointer-events: none;
+.blog-search-order {
+    position: absolute;
+    right: 52px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #71717a;
+    font-size: var(--text-ui);
+    pointer-events: none;
+    transition: opacity 150ms;
 }
 .blog-filters,
 .blog-tags {

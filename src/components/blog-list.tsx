@@ -1,15 +1,9 @@
 "use client";
 
-import {
-	ArrowLeft,
-	ArrowRight,
-	ArrowUpRight,
-	BookOpen,
-	Search,
-	X,
-} from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUpRight, BookOpen, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { ExpandingSearch } from "~/components/interior/expanding-search";
 import { Badge, BadgeButton } from "~/components/ui/badge";
 import Image from "~/components/site-image";
 import type { Article } from "~/lib/blog";
@@ -28,6 +22,7 @@ const pageSize = 10;
 
 export function BlogList({ articles }: { articles: ListedArticle[] }) {
 	const [query, setQuery] = useState("");
+	const [searchOpen, setSearchOpen] = useState(false);
 	const [category, setCategory] = useState("");
 	const [page, setPage] = useState(1);
 	const categories = Array.from(
@@ -51,7 +46,30 @@ export function BlogList({ articles }: { articles: ListedArticle[] }) {
 			<h2 id="all-posts">
 				All posts <span className="project-count">({articles.length})</span>
 			</h2>
-			<span>Newest first</span>
+			{articles.length > 0 ? (
+				<div className="blog-search-slot">
+					<span
+						aria-hidden={searchOpen}
+						className="blog-search-order"
+						style={{ opacity: searchOpen ? 0 : 1 }}
+					>
+						Newest first
+					</span>
+					<ExpandingSearch
+						label="Search posts"
+						placeholder="Search posts"
+						value={query}
+						resultCount={filtered.length}
+						onOpenChange={setSearchOpen}
+						onChange={(value) => {
+							setQuery(value);
+							setPage(1);
+						}}
+					/>
+				</div>
+			) : (
+				<span>Newest first</span>
+			)}
 		</div>
 	);
 
@@ -80,19 +98,6 @@ export function BlogList({ articles }: { articles: ListedArticle[] }) {
 		<section aria-labelledby="all-posts" className="blog-archive">
 			{archiveHeading}
 			<div className="blog-tools">
-				<label className="blog-search">
-					<span className="sr-only">Search posts</span>
-					<Search aria-hidden="true" size={16} strokeWidth={1.8} />
-					<input
-						onChange={(event) => {
-							setQuery(event.target.value);
-							setPage(1);
-						}}
-						placeholder="Search posts"
-						type="search"
-						value={query}
-					/>
-				</label>
 				{categories.length > 0 && (
 					<fieldset className="blog-filters">
 						<legend className="sr-only">Filter by category</legend>
@@ -109,7 +114,9 @@ export function BlogList({ articles }: { articles: ListedArticle[] }) {
 						{categories.map((item) => (
 							<BadgeButton
 								aria-pressed={category === item.slug}
-                                aria-label={category === item.slug ? `Remove ${item.name}` : item.name}
+								aria-label={
+									category === item.slug ? `Remove ${item.name}` : item.name
+								}
 								key={item.slug}
 								onClick={() => {
 									setCategory(category === item.slug ? "" : item.slug);
@@ -118,7 +125,7 @@ export function BlogList({ articles }: { articles: ListedArticle[] }) {
 								type="button"
 							>
 								{item.name}
-                                {category === item.slug && <X aria-hidden="true" size={12} />}
+								{category === item.slug && <X aria-hidden="true" size={12} />}
 							</BadgeButton>
 						))}
 					</fieldset>
@@ -151,7 +158,9 @@ export function BlogList({ articles }: { articles: ListedArticle[] }) {
 							{article.categories.length > 0 && (
 								<ul aria-label="Categories" className="blog-tags">
 									{article.categories.map((item) => (
-										<li key={item.slug}><Badge>{item.name}</Badge></li>
+										<li key={item.slug}>
+											<Badge>{item.name}</Badge>
+										</li>
 									))}
 								</ul>
 							)}
