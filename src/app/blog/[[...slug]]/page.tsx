@@ -1,3 +1,4 @@
+import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -89,9 +90,21 @@ export default async function BlogPage({ params }: Props) {
 		);
 		return (
 			<>
-				<header className="blog-heading">
-					<h1>Blog</h1>
-					<p>Articles and notes.</p>
+				<header className="blog-heading profile-header">
+					<Image
+						alt="Deion D'Souza"
+						className="profile-avatar"
+						height={80}
+						src="/deiondz-pfp.png"
+						width={80}
+					/>
+					<div>
+						<h1>Blog</h1>
+						<p className="tagline">Notes on design, engineering, and growth.</p>
+						<div className="profile-links">
+							<Link href="/">By Deion D&apos;Souza</Link>
+						</div>
+					</div>
 				</header>
 				<BlogList articles={listed} />
 			</>
@@ -125,7 +138,8 @@ export default async function BlogPage({ params }: Props) {
 			<article>
 				<header className="article-heading">
 					<Link className="article-back" href="/blog/">
-						← All posts
+						<ArrowLeft aria-hidden="true" size={16} strokeWidth={1.8} />
+						All posts
 					</Link>
 					{article.categories.length > 0 && (
 						<ul aria-label="Categories" className="blog-tags">

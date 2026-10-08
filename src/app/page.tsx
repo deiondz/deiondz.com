@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowUpRight, ChevronDown } from "lucide-react";
 import Image from "next/image";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import graphData from "./contributions.json";
@@ -175,26 +176,11 @@ function SkillIcon({ name }: { name: string }) {
 	);
 }
 
-function Icon({ name }: { name: "github" | "link" | "chevron" }) {
+function Icon({ name }: { name: "github" | "link" }) {
 	if (name === "github")
 		return (
 			<svg aria-hidden="true" fill="currentColor" viewBox="0 0 24 24">
 				<path d="M12 .9a11.1 11.1 0 0 0-3.51 21.63c.55.1.76-.24.76-.54v-2.08c-3.1.67-3.76-1.32-3.76-1.32-.5-1.28-1.23-1.62-1.23-1.62-1-.69.08-.68.08-.68 1.1.08 1.68 1.13 1.68 1.13.98 1.68 2.58 1.2 3.21.91.1-.71.38-1.2.69-1.48-2.48-.28-5.1-1.24-5.1-5.5 0-1.22.44-2.21 1.14-2.99-.11-.28-.5-1.42.11-2.95 0 0 .93-.3 3.05 1.14A10.6 10.6 0 0 1 12 6.3c.94 0 1.88.13 2.76.37 2.12-1.44 3.05-1.14 3.05-1.14.61 1.53.22 2.67.1 2.95.72.78 1.15 1.77 1.15 2.99 0 4.27-2.62 5.21-5.12 5.49.39.34.74 1.01.74 2.04v2.99c0 .3.2.65.77.54A11.1 11.1 0 0 0 12 .9Z" />
-			</svg>
-		);
-	if (name === "link")
-		return (
-			<svg
-				aria-hidden="true"
-				fill="none"
-				stroke="currentColor"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-				strokeWidth="1.8"
-				viewBox="0 0 24 24"
-			>
-				<path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7" />
-				<path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7" />
 			</svg>
 		);
 	return (
@@ -207,7 +193,8 @@ function Icon({ name }: { name: "github" | "link" | "chevron" }) {
 			strokeWidth="1.8"
 			viewBox="0 0 24 24"
 		>
-			<path d="m6 9 6 6 6-6" />
+			<path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7" />
+			<path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7" />
 		</svg>
 	);
 }
@@ -346,7 +333,7 @@ function Projects() {
 								onClick={() => setOpen(open === project.id ? null : project.id)}
 								type="button"
 							>
-								<Icon name="chevron" />
+								<ChevronDown aria-hidden="true" size={16} strokeWidth={1.8} />
 							</button>
 						</div>
 						<div
@@ -354,27 +341,26 @@ function Projects() {
 							hidden={open !== project.id}
 							id={`details-${project.id}`}
 						>
-								<p>{project.description}</p>
-								<ul>
-									{project.features.map((feature) => (
-										<li key={feature}>{feature}</li>
-									))}
-								</ul>
-								<div className="tags">
-									{project.tags.map((tag) => (
-										<span key={tag}>{tag}</span>
-									))}
-								</div>
-								<a
-									className="project-link"
-									href={project.url}
-									rel="noopener noreferrer"
-									target="_blank"
-								>
-									{project.id === "drishti"
-										? "Visit Drishti ↗"
-										: "View repository ↗"}
-								</a>
+							<p>{project.description}</p>
+							<ul>
+								{project.features.map((feature) => (
+									<li key={feature}>{feature}</li>
+								))}
+							</ul>
+							<div className="tags">
+								{project.tags.map((tag) => (
+									<span key={tag}>{tag}</span>
+								))}
+							</div>
+							<a
+								className="project-link"
+								href={project.url}
+								rel="noopener noreferrer"
+								target="_blank"
+							>
+								{project.id === "drishti" ? "Visit Drishti" : "View repository"}
+								<ArrowUpRight aria-hidden="true" size={16} strokeWidth={1.8} />
+							</a>
 						</div>
 					</article>
 				))}
@@ -443,9 +429,7 @@ export default function HomePage() {
 						<h1>Deion D&apos;Souza</h1>
 						<p className="tagline">Growth Engineer at Manasija AI</p>
 						<div className="profile-links">
-							<a href="mailto:deiondsouza12@gmail.com">
-								Email
-							</a>
+							<a href="mailto:deiondsouza12@gmail.com">Email</a>
 							<a href="#projects">View projects</a>
 							<a
 								href="https://github.com/deiondz"

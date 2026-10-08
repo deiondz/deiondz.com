@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowUpRight } from "lucide-react";
 import { useState } from "react";
 
 export function ShareArticle({ title, url }: { title: string; url: string }) {
@@ -20,7 +21,8 @@ export function ShareArticle({ title, url }: { title: string; url: string }) {
 	return (
 		<div className="article-share">
 			<button onClick={share} type="button">
-				Share this post ↗
+				Share this post
+				<ArrowUpRight aria-hidden="true" size={16} strokeWidth={1.8} />
 			</button>
 			<span aria-live="polite">{message}</span>
 		</div>

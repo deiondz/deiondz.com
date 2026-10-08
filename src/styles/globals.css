@@ -471,7 +471,9 @@ h2 {
 	line-height: 1.5;
 }
 .project-link {
-	display: inline-block;
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
 	margin-top: 16px;
 	font-family: var(--font-rethink-sans), Arial, sans-serif;
 	font-size: var(--text-ui);

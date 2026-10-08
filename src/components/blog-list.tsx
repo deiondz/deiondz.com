@@ -1,5 +1,12 @@
 "use client";
 
+import {
+	ArrowLeft,
+	ArrowRight,
+	ArrowUpRight,
+	BookOpen,
+	Search,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -37,21 +44,43 @@ export function BlogList({ articles }: { articles: ListedArticle[] }) {
 	});
 	const pageCount = Math.ceil(filtered.length / pageSize);
 	const visible = filtered.slice((page - 1) * pageSize, page * pageSize);
+	const archiveHeading = (
+		<div className="blog-archive-heading">
+			<h2 id="all-posts">
+				All posts <span className="project-count">({articles.length})</span>
+			</h2>
+			<span>Newest first</span>
+		</div>
+	);
 
 	if (articles.length === 0) {
 		return (
-			<div className="blog-empty">
-				<h2>No posts yet.</h2>
-				<p>New articles will appear here once they’re published.</p>
-			</div>
+			<section aria-labelledby="all-posts" className="blog-archive">
+				{archiveHeading}
+				<div className="blog-empty">
+					<div aria-hidden="true" className="blog-empty-icon">
+						<BookOpen size={22} strokeWidth={1.5} />
+					</div>
+					<div>
+						<h3>No posts yet.</h3>
+						<p>New articles will appear here once they’re published.</p>
+						<a className="blog-icon-link blog-empty-link" href="/blog/feed.xml">
+							Follow via RSS
+							<ArrowUpRight aria-hidden="true" size={16} strokeWidth={1.8} />
+						</a>
+					</div>
+				</div>
+			</section>
 		);
 	}
 
 	return (
-		<>
+		<section aria-labelledby="all-posts" className="blog-archive">
+			{archiveHeading}
 			<div className="blog-tools">
 				<label className="blog-search">
 					<span className="sr-only">Search posts</span>
+					<Search aria-hidden="true" size={16} strokeWidth={1.8} />
 					<input
 						onChange={(event) => {
 							setQuery(event.target.value);
@@ -104,9 +133,16 @@ export function BlogList({ articles }: { articles: ListedArticle[] }) {
 								<span aria-hidden="true">·</span>
 								<span>{article.readingMinutes} min read</span>
 							</div>
-							<h2>
-								<Link href={`/blog/${article.slug}/`}>{article.title}</Link>
-							</h2>
+							<h3>
+								<Link href={`/blog/${article.slug}/`}>
+									<span>{article.title}</span>
+									<ArrowUpRight
+										aria-hidden="true"
+										size={18}
+										strokeWidth={1.8}
+									/>
+								</Link>
+							</h3>
 							<p>{article.excerpt}</p>
 							{article.categories.length > 0 && (
 								<ul aria-label="Categories" className="blog-tags">
@@ -136,7 +172,7 @@ export function BlogList({ articles }: { articles: ListedArticle[] }) {
 			</div>
 			{filtered.length === 0 && (
 				<div className="blog-empty">
-					<h2>No matching posts.</h2>
+					<h3>No matching posts.</h3>
 					<p>Try another search or category.</p>
 					<button
 						onClick={() => {
@@ -157,7 +193,8 @@ export function BlogList({ articles }: { articles: ListedArticle[] }) {
 						onClick={() => setPage(page - 1)}
 						type="button"
 					>
-						← Previous
+						<ArrowLeft aria-hidden="true" size={16} strokeWidth={1.8} />
+						Previous
 					</button>
 					<span aria-live="polite">
 						Page {page} of {pageCount}
@@ -167,10 +204,11 @@ export function BlogList({ articles }: { articles: ListedArticle[] }) {
 						onClick={() => setPage(page + 1)}
 						type="button"
 					>
-						Next →
+						Next
+						<ArrowRight aria-hidden="true" size={16} strokeWidth={1.8} />
 					</button>
 				</nav>
 			)}
-		</>
+		</section>
 	);
 }
