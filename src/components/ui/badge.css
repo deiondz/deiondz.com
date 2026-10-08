@@ -1,0 +1,71 @@
+.ui-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	border-radius: 6px;
+	padding: 3px 8px;
+	font-size: var(--text-caption);
+	font-weight: 500;
+	line-height: 20px;
+	white-space: nowrap;
+	background: #f4f4f5;
+	color: #3f3f46;
+	transition: background-color 150ms;
+}
+.ui-badge:hover {
+	background: #eaeaec;
+}
+.ui-badge-closable {
+	padding-right: 4px;
+}
+.closable-badges {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+}
+.ui-badge-button {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	border: 0;
+	background: transparent;
+	color: inherit;
+	font: inherit;
+	cursor: pointer;
+}
+.ui-badge-button-icon-xs {
+	width: 16px;
+	height: 16px;
+	padding: 0;
+	border-radius: 50%;
+}
+.ui-badge-button-icon-xs::after {
+	position: absolute;
+	inset: -4px;
+	content: "";
+}
+.ui-badge-button-icon-xs:hover {
+	background: #d4d4d8;
+}
+.ui-badge-button-sm {
+	height: 28px;
+	padding: 0 8px;
+	border-radius: 6px;
+	font-size: var(--text-caption);
+	color: #71717a;
+}
+.ui-badge-button-sm:hover {
+	background: #f4f4f5;
+}
+.ui-badge-button:focus-visible {
+	outline: 2px solid #18181b;
+	outline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+	.ui-badge {
+		transition: none;
+	}
+}

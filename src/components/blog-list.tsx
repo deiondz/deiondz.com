@@ -9,6 +9,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { BadgeClosable } from "~/components/badge-closable";
+import { Badge } from "~/components/ui/badge";
 import Image from "~/components/site-image";
 import type { Article } from "~/lib/blog";
 
@@ -119,6 +121,10 @@ export function BlogList({ articles }: { articles: ListedArticle[] }) {
 						))}
 					</fieldset>
 				)}
+                {category && <BadgeClosable
+                    tags={categories.filter(item => item.slug === category).map(item => ({id: item.slug, label: item.name}))}
+                    onRemove={() => { setCategory(""); setPage(1); }}
+                />}
 			</div>
 			<p aria-live="polite" className="blog-results">
 				{filtered.length} {filtered.length === 1 ? "post" : "posts"}
@@ -147,7 +153,7 @@ export function BlogList({ articles }: { articles: ListedArticle[] }) {
 							{article.categories.length > 0 && (
 								<ul aria-label="Categories" className="blog-tags">
 									{article.categories.map((item) => (
-										<li key={item.slug}>{item.name}</li>
+										<li key={item.slug}><Badge>{item.name}</Badge></li>
 									))}
 								</ul>
 							)}

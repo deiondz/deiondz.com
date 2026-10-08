@@ -6,6 +6,7 @@ import { ArticleBody } from "~/components/article-body";
 import { ArticleReadingProgress } from "~/components/article-reading-progress";
 import { BlogList } from "~/components/blog-list";
 import { ShareArticle } from "~/components/share-article";
+import { Badge } from "~/components/ui/badge";
 import Image from "~/components/site-image";
 import { articleUrl, formatDate, getArticles } from "~/lib/blog";
 
@@ -146,7 +147,7 @@ export default async function BlogPage({ params }: Props) {
 					{article.categories.length > 0 && (
 						<ul aria-label="Categories" className="blog-tags">
 							{article.categories.map((item) => (
-								<li key={item.slug}>{item.name}</li>
+								<li key={item.slug}><Badge>{item.name}</Badge></li>
 							))}
 						</ul>
 					)}
