@@ -1,4 +1,8 @@
 /* Blog uses the portfolio's 16/20/32px scale and relaxed article leading. */
+.page-shell.blog-page {
+	/* Clip decoration without creating a scroll container for the sticky header. */
+	overflow: clip;
+}
 .blog-shell {
 	min-height: 100vh;
 	padding-bottom: 64px;
