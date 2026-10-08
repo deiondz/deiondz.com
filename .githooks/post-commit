@@ -1,0 +1,13 @@
+#!/bin/sh
+set -eu
+
+branch=$(git symbolic-ref --quiet --short HEAD) || {
+    echo "Detached HEAD: commit saved locally. Switch to a branch before pushing."
+    exit 0
+}
+
+echo "Pushing $branch to GitHub..."
+if ! git push --set-upstream origin "$branch"; then
+    echo "Commit saved locally, but automatic push failed. Run git push after resolving the error." >&2
+    exit 1
+fi
