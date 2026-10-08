@@ -1,11 +1,12 @@
 import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
-import Image from "~/components/site-image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArticleBody } from "~/components/article-body";
+import { ArticleReadingProgress } from "~/components/article-reading-progress";
 import { BlogList } from "~/components/blog-list";
 import { ShareArticle } from "~/components/share-article";
+import Image from "~/components/site-image";
 import { articleUrl, formatDate, getArticles } from "~/lib/blog";
 
 type Props = { params: Promise<{ slug?: string[] }> };
@@ -95,7 +96,7 @@ export default async function BlogPage({ params }: Props) {
 						alt="Deion D'Souza"
 						className="profile-avatar"
 						height={80}
-						priority
+                        priority
 						src="/deiondz-pfp.png"
 						width={80}
 					/>
@@ -172,7 +173,11 @@ export default async function BlogPage({ params }: Props) {
 						width={article.coverImage.width || 720}
 					/>
 				)}
-				<ArticleBody content={article.content} />
+				<ArticleReadingProgress
+					words={article.plainText.trim().split(/\s+/).filter(Boolean).length}
+				>
+					<ArticleBody content={article.content} />
+				</ArticleReadingProgress>
 				<ShareArticle title={article.title} url={articleUrl(article.slug)} />
 			</article>
 		</>

@@ -422,7 +422,7 @@ export default function HomePage() {
 						alt="Deion D'Souza"
 						className="profile-avatar"
 						height={80}
-						priority
+                        priority
 						src="/deiondz-pfp.png"
 						width={80}
 					/>
@@ -446,6 +446,7 @@ export default function HomePage() {
 							>
 								LinkedIn
 							</a>
+							<Link href="/blog/">write ups</Link>
 						</div>
 					</div>
 				</header>
@@ -460,7 +461,7 @@ export default function HomePage() {
 						guides improvements to interfaces, onboarding, and documentation.
 					</p>
 					<p className="writing-note">
-						Also{" "}
+						<span>also I</span>
 						<Link aria-label="Read the blog" className="writing-link" href="/blog/">
 							<span>write</span>
 							<svg

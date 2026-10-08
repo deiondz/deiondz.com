@@ -230,16 +230,19 @@ h2 {
 .about p + p {
 	margin-top: 16px;
 }
+.writing-note {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
 .writing-link {
 	display: inline-flex;
 	align-items: center;
 	gap: 8px;
 	color: #18181b;
 	font-weight: 500;
-	vertical-align: middle;
 }
 .writing-link span {
-	padding: 0 3px;
 	background: linear-gradient(
 		transparent 48%,
 		#f8e6a0 48%,
