@@ -65,7 +65,7 @@ const experience = [
 		period: "Jul 2026 — Present",
 		location: "Mangalore, India",
 		description:
-			"I work on Drishti's customer acquisition, developer onboarding, support, content, and automation. I bring customer feedback back to the product team.",
+			"Working on customer acquisition, developer onboarding, support, content, and automation for Drishti. Sharing customer feedback with the product team.",
 	},
 	{
 		role: "Founding Engineer",
@@ -444,7 +444,7 @@ export default function HomePage() {
 						<p className="tagline">Growth Engineer at Manasija AI</p>
 						<div className="profile-links">
 							<a href="mailto:deiondsouza12@gmail.com">
-								Email me
+								Email
 							</a>
 							<a href="#projects">View projects</a>
 							<a
@@ -467,13 +467,12 @@ export default function HomePage() {
 				<section className="about">
 					<h2>About</h2>
 					<p>
-						I work across design, engineering, and growth. I shape interfaces,
+						Working across design, engineering, and growth to shape interfaces,
 						build software, and help people find and use it.
 					</p>
 					<p>
-						Customer conversations show me where people get stuck. I use that
-						feedback to make the interface, onboarding, and documentation
-						clearer.
+						Customer conversations reveal where people get stuck. That feedback
+						guides improvements to interfaces, onboarding, and documentation.
 					</p>
 				</section>
 				<section className="contributions">
