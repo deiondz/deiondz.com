@@ -23,6 +23,43 @@ const fixture = {
 };
 const base = "https://strapi.deiondz.com";
 
+test("Strapi image previews resolve relative URLs and discard unsafe protocols", () => {
+	const image = {
+		url: "/uploads/full.png",
+		formats: { thumbnail: { url: "/uploads/thumbnail.png" } },
+	};
+	const [post] = normalizeArticles(
+		[
+			{
+				...fixture,
+				coverImage: image,
+				content: [
+					{ type: "image", image, children: [{ type: "text", text: "" }] },
+				],
+			},
+		],
+		base,
+	);
+	assert.equal(post.coverImage.placeholder, `${base}/uploads/thumbnail.png`);
+	assert.equal(
+		post.content[0].image.placeholder,
+		`${base}/uploads/thumbnail.png`,
+	);
+	const [unsafe] = normalizeArticles(
+		[
+			{
+				...fixture,
+				coverImage: {
+					...image,
+					formats: { thumbnail: { url: "javascript:alert(1)" } },
+				},
+			},
+		],
+		base,
+	);
+	assert.equal(unsafe.coverImage.placeholder, undefined);
+});
+
 test("only published articles appear in the snapshot", () => {
 	const articles = normalizeArticles(
 		[fixture, { ...fixture, slug: "draft", publishedAt: null }],

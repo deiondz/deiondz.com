@@ -1,6 +1,6 @@
 import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
-import Image from "next/image";
+import Image from "~/components/site-image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArticleBody } from "~/components/article-body";
@@ -95,6 +95,7 @@ export default async function BlogPage({ params }: Props) {
 						alt="Deion D'Souza"
 						className="profile-avatar"
 						height={80}
+						priority
 						src="/deiondz-pfp.png"
 						width={80}
 					/>
@@ -165,9 +166,9 @@ export default async function BlogPage({ params }: Props) {
 						alt={article.coverImage.alternativeText || ""}
 						className="article-cover"
 						height={article.coverImage.height || 480}
+						placeholder={article.coverImage.placeholder}
 						priority
 						src={article.coverImage.url}
-						unoptimized
 						width={article.coverImage.width || 720}
 					/>
 				)}

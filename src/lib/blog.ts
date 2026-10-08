@@ -13,6 +13,7 @@ export type Article = {
 	updatedAt: string;
 	coverImage: {
 		url: string;
+		placeholder?: string;
 		alternativeText?: string | null;
 		width?: number | null;
 		height?: number | null;

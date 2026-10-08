@@ -11,6 +11,10 @@ const media = z.object({
 	alternativeText: z.string().nullable().optional(),
 	width: z.number().nullable().optional(),
 	height: z.number().nullable().optional(),
+	formats: z
+		.object({ thumbnail: z.object({ url: z.string() }).optional() })
+		.nullable()
+		.optional(),
 });
 const article = z.object({
 	title: z.string().min(1).max(255),
@@ -53,9 +57,18 @@ function sanitizeBlock(node, base, linkBase) {
 	if (node.image) {
 		const url = safeUrl(node.image.url, base, true);
 		if (!url) throw new Error("Article contains an invalid image URL.");
-		result.image = { ...node.image, url };
+		result.image = {
+			...node.image,
+			url,
+			placeholder: imagePreview(node.image, base),
+		};
 	}
 	return result;
+}
+
+function imagePreview(image, base) {
+	const thumbnail = image.formats?.thumbnail?.url;
+	return thumbnail ? safeUrl(thumbnail, base, true) || undefined : undefined;
 }
 
 export function normalizeArticles(items, base) {
@@ -75,6 +88,7 @@ export function normalizeArticles(items, base) {
 				? {
 						...parsed.coverImage,
 						url: safeUrl(parsed.coverImage.url, base, true),
+						placeholder: imagePreview(parsed.coverImage, base),
 					}
 				: null;
 			if (coverImage && !coverImage.url)

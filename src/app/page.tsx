@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowUpRight, ChevronDown } from "lucide-react";
-import Image from "next/image";
+import Image from "~/components/site-image";
 import Link from "next/link";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import graphData from "./contributions.json";
@@ -295,7 +295,6 @@ function Projects() {
 										alt=""
 										height={24}
 										src={project.logo}
-										unoptimized
 										width={24}
 									/>
 								) : (
@@ -423,6 +422,7 @@ export default function HomePage() {
 						alt="Deion D'Souza"
 						className="profile-avatar"
 						height={80}
+						priority
 						src="/deiondz-pfp.png"
 						width={80}
 					/>
@@ -498,7 +498,6 @@ export default function HomePage() {
 											className="company-logo"
 											height={32}
 											src={job.logo}
-											unoptimized
 											width={32}
 										/>
 										<div>
@@ -531,7 +530,6 @@ export default function HomePage() {
 														alt=""
 														height={16}
 														src={`/skills/${skill.logo}.svg`}
-														unoptimized
 														width={16}
 													/>
 												) : (

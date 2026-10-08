@@ -193,7 +193,7 @@
 	flex: none;
 	margin-top: 6px;
 }
-.blog-thumbnail img {
+.blog-thumbnail .blur-up-image {
 	width: 100%;
 	height: 90px;
 	border-radius: 8px;
@@ -279,7 +279,7 @@
 	line-height: 1.7;
 }
 .article-cover,
-.article-body img {
+.article-body .blur-up-image {
 	display: block;
 	width: 100%;
 	height: auto;
@@ -405,7 +405,7 @@
 	.blog-thumbnail {
 		width: 88px;
 	}
-	.blog-thumbnail img {
+	.blog-thumbnail .blur-up-image {
 		height: 88px;
 	}
 	.article-heading h1 {

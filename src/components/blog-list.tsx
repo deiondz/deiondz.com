@@ -7,9 +7,9 @@ import {
 	BookOpen,
 	Search,
 } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import Image from "~/components/site-image";
 import type { Article } from "~/lib/blog";
 
 type ListedArticle = Pick<
@@ -161,8 +161,8 @@ export function BlogList({ articles }: { articles: ListedArticle[] }) {
 								<Image
 									alt={article.coverImage.alternativeText || ""}
 									height={120}
+									placeholder={article.coverImage.placeholder}
 									src={article.coverImage.url}
-									unoptimized
 									width={160}
 								/>
 							</Link>

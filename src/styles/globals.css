@@ -615,3 +615,23 @@ h2 {
 		gap: 3px;
 	}
 }
+/* Shared blur-up frames preserve image geometry before loading. */
+.blur-up-image {
+	position: relative;
+	display: block;
+	width: var(--image-width);
+	flex-shrink: 0;
+	overflow: hidden;
+	background: #f4f4f5;
+}
+.blur-up-image > .blur-up-image-layer {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: var(--image-fit);
+}
+.project-mark .blur-up-image {
+	width: 100%;
+	height: 100%;
+}

@@ -4,7 +4,7 @@ import {
 	type BlocksContent,
 	BlocksRenderer,
 } from "@strapi/blocks-react-renderer";
-import Image from "next/image";
+import Image from "~/components/site-image";
 import CodeBlock from "./code-block";
 
 export function ArticleBody({ content }: { content: BlocksContent }) {
@@ -27,8 +27,10 @@ export function ArticleBody({ content }: { content: BlocksContent }) {
 							<Image
 								alt={image.alternativeText || ""}
 								height={image.height || 480}
+								placeholder={
+									(image as typeof image & { placeholder?: string }).placeholder
+								}
 								src={image.url}
-								unoptimized
 								width={image.width || 720}
 							/>
 							{image.caption && <figcaption>{image.caption}</figcaption>}
