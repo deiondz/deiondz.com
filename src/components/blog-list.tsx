@@ -64,10 +64,10 @@ export function BlogList({ articles }: { articles: ListedArticle[] }) {
 					<div>
 						<h3>No posts yet.</h3>
 						<p>New articles will appear here once they’re published.</p>
-						<a className="blog-icon-link blog-empty-link" href="/blog/feed.xml">
+						<Link className="blog-icon-link blog-empty-link" href="/blog/feed/">
 							Follow via RSS
 							<ArrowUpRight aria-hidden="true" size={16} strokeWidth={1.8} />
-						</a>
+						</Link>
 					</div>
 				</div>
 			</section>

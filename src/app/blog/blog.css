@@ -438,3 +438,21 @@
 		font-size: var(--text-caption);
 	}
 }
+.feed-subscription {
+	margin-top: 40px;
+}
+.feed-subscription p {
+	margin: 12px 0;
+	color: #52525b;
+}
+.feed-address {
+	width: 100%;
+	min-width: 0;
+	border: 1px solid #e4e4e7;
+	border-radius: 8px;
+	padding: 12px;
+	margin-bottom: 16px;
+	font: inherit;
+	font-size: var(--text-ui);
+	background: #fafafa;
+}

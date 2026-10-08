@@ -23,6 +23,17 @@ Portfolio CI/CD workflow manually on `main` from GitHub's Actions tab.
 The blog includes search, category filters, pagination, dates, reading time,
 article sharing, metadata, JSON-LD, `/blog/feed.xml`, and `/sitemap.xml`.
 
+RSS links open the readable `/blog/feed/` page. The XML endpoint remains the
+subscription address for feed readers. The sitemap includes every public page,
+published article, article image, and CMS update dates. `src/app/sitemap.ts` and
+`src/app/robots.ts` generate the files at build time.
+
+The canonical Nginx HTTPS server includes `/etc/nginx/snippets/deiondz-xml.conf`,
+copied from `scripts/deploy/xml-locations.conf`. It redirects browser requests
+for the feed XML to the readable page, serves RSS readers XML, and sets inline
+disposition for XML responses. After updating the snippet, run `nginx -t` and
+reload Nginx. Static export does not preserve Next.js response headers in Nginx.
+
 For local development, copy `.env.example` to `.env.local` and set the dedicated
 read token. This clone is already configured. `npm run dev` and `npm run build`
 sync Strapi first. After editing content while the dev server is running, use

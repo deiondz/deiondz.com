@@ -15,10 +15,10 @@ export default function BlogLayout({
 						<ArrowLeft aria-hidden="true" size={16} strokeWidth={1.8} />
 						Portfolio
 					</Link>
-					<a className="blog-icon-link" href="/blog/feed.xml">
+					<Link className="blog-icon-link" href="/blog/feed/">
 						<Rss aria-hidden="true" size={14} strokeWidth={1.8} />
 						RSS feed
-					</a>
+					</Link>
 				</nav>
 				{children}
 				<footer className="blog-footer">

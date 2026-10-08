@@ -24,6 +24,11 @@ export function GET() {
 		.join("");
 	return new Response(
 		`<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Deion D'Souza — Blog</title><link>https://deiondz.com/blog/</link><description>Articles and notes by Deion D'Souza.</description><language>en</language><atom:link href="https://deiondz.com/blog/feed.xml" rel="self" type="application/rss+xml"/>${items}</channel></rss>`,
-		{ headers: { "Content-Type": "application/rss+xml; charset=utf-8" } },
+		{
+			headers: {
+				"Content-Type": "application/rss+xml; charset=utf-8",
+				"Content-Disposition": "inline",
+			},
+		},
 	);
 }

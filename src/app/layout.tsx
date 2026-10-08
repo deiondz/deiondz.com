@@ -19,7 +19,10 @@ export const metadata: Metadata = {
 	metadataBase: new URL("https://deiondz.com"),
 	title,
 	description,
-	alternates: { canonical: "/" },
+	alternates: {
+		canonical: "/",
+		types: { "application/rss+xml": "/blog/feed.xml" },
+	},
 	icons: [{ rel: "icon", url: "/favicon.svg" }],
 	openGraph: {
 		type: "website",
