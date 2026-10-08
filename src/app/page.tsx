@@ -1,9 +1,9 @@
 "use client";
 
 import { ArrowUpRight, ChevronDown } from "lucide-react";
-import Image from "~/components/site-image";
 import Link from "next/link";
 import { type ReactNode, useEffect, useRef, useState } from "react";
+import Image from "~/components/site-image";
 import graphData from "./contributions.json";
 
 const projects = [
@@ -291,12 +291,7 @@ function Projects() {
 						<div className="project-row">
 							<div aria-hidden="true" className="project-mark">
 								{project.logo ? (
-									<Image
-										alt=""
-										height={24}
-										src={project.logo}
-										width={24}
-									/>
+									<Image alt="" height={24} src={project.logo} width={24} />
 								) : (
 									project.name.slice(0, 1).toUpperCase()
 								)}
@@ -305,6 +300,7 @@ function Projects() {
 								aria-controls={`details-${project.id}`}
 								aria-expanded={open === project.id}
 								className="project-toggle"
+								data-cuelume-open={open === project.id ? "close" : "open"}
 								onClick={() => setOpen(open === project.id ? null : project.id)}
 								type="button"
 							>
@@ -321,6 +317,7 @@ function Projects() {
 										? "Visit Drishti"
 										: `View ${project.name} on GitHub`
 								}
+								data-cuelume-navigate=""
 								href={project.url}
 								rel="noopener noreferrer"
 								target="_blank"
@@ -330,6 +327,7 @@ function Projects() {
 							<button
 								aria-label={`${open === project.id ? "Collapse" : "Expand"} ${project.name}`}
 								className="chevron-button"
+								data-cuelume-open={open === project.id ? "close" : "open"}
 								onClick={() => setOpen(open === project.id ? null : project.id)}
 								type="button"
 							>
@@ -354,6 +352,7 @@ function Projects() {
 							</div>
 							<a
 								className="project-link"
+								data-cuelume-navigate=""
 								href={project.url}
 								rel="noopener noreferrer"
 								target="_blank"
@@ -422,7 +421,7 @@ export default function HomePage() {
 						alt="Deion D'Souza"
 						className="profile-avatar"
 						height={80}
-                        priority
+						priority
 						src="/deiondz-pfp.png"
 						width={80}
 					/>
@@ -430,9 +429,14 @@ export default function HomePage() {
 						<h1>Deion D&apos;Souza</h1>
 						<p className="tagline">Growth Engineer at Manasija AI</p>
 						<div className="profile-links">
-							<a href="mailto:deiondsouza12@gmail.com">Email</a>
-							<a href="#projects">View projects</a>
+							<a data-cuelume-tap="" href="mailto:deiondsouza12@gmail.com">
+								Email
+							</a>
+							<a data-cuelume-navigate="" href="#projects">
+								View projects
+							</a>
 							<a
+								data-cuelume-navigate=""
 								href="https://github.com/deiondz"
 								rel="noopener noreferrer"
 								target="_blank"
@@ -440,13 +444,16 @@ export default function HomePage() {
 								GitHub
 							</a>
 							<a
+								data-cuelume-navigate=""
 								href="https://www.linkedin.com/in/deiondz/"
 								rel="noopener noreferrer"
 								target="_blank"
 							>
 								LinkedIn
 							</a>
-							<Link href="/blog/">write ups</Link>
+							<Link data-cuelume-navigate="" href="/blog/">
+								write ups
+							</Link>
 						</div>
 					</div>
 				</header>
@@ -462,7 +469,12 @@ export default function HomePage() {
 					</p>
 					<p className="writing-note">
 						<span>also I</span>
-						<Link aria-label="Read the blog" className="writing-link" href="/blog/">
+						<Link
+							aria-label="Read the blog"
+							className="writing-link"
+							data-cuelume-navigate=""
+							href="/blog/"
+						>
 							<span>write</span>
 							<svg
 								aria-hidden="true"

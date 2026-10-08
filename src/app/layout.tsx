@@ -2,6 +2,7 @@ import "~/styles/globals.css";
 
 import type { Metadata } from "next";
 import { Rethink_Sans } from "next/font/google";
+import { InteractionSounds } from "~/components/interaction-sounds";
 
 const rethinkSans = Rethink_Sans({
 	subsets: ["latin"],
@@ -52,7 +53,10 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
 	return (
 		<html className={rethinkSans.variable} lang="en">
-			<body>{children}</body>
+			<body data-cuelume-emphasis="subtle">
+				{children}
+				<InteractionSounds />
+			</body>
 		</html>
 	);
 }

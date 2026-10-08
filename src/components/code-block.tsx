@@ -1,6 +1,7 @@
 // biome-ignore-all lint/suspicious/noArrayIndexKey: Source positions identify immutable code lines and fragments, including repeated text.
 "use client";
 
+import { play } from "cuelume";
 import { type ReactNode, useCallback, useEffect, useState } from "react";
 
 /* ─────────────────────────────────────────────────────────
@@ -187,9 +188,11 @@ export default function CodeBlock({
 		try {
 			await navigator.clipboard.writeText(raw);
 			setCopied(true);
+			play("success", { emphasis: "subtle" });
 			onCopy?.(raw);
 		} catch {
 			setCopyError(true);
+			play("error", { emphasis: "subtle" });
 		}
 	}, [raw, onCopy]);
 

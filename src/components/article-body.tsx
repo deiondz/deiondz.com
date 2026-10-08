@@ -36,7 +36,11 @@ export function ArticleBody({ content }: { content: BlocksContent }) {
 							{image.caption && <figcaption>{image.caption}</figcaption>}
 						</figure>
 					),
-					link: ({ children, url }) => <a href={url}>{children}</a>,
+					link: ({ children, url }) => (
+						<a data-cuelume-navigate="" href={url}>
+							{children}
+						</a>
+					),
 				}}
 				content={content}
 			/>

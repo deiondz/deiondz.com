@@ -1,5 +1,6 @@
 "use client";
 
+import { play } from "cuelume";
 import { ArrowLeft, ArrowRight, ArrowUpRight, BookOpen, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -84,7 +85,11 @@ export function BlogList({ articles }: { articles: ListedArticle[] }) {
 					<div>
 						<h3>No posts yet.</h3>
 						<p>New articles will appear here once they’re published.</p>
-						<Link className="blog-icon-link blog-empty-link" href="/blog/feed/">
+						<Link
+							className="blog-icon-link blog-empty-link"
+							data-cuelume-navigate=""
+							href="/blog/feed/"
+						>
 							Follow via RSS
 							<ArrowUpRight aria-hidden="true" size={16} strokeWidth={1.8} />
 						</Link>
@@ -103,6 +108,7 @@ export function BlogList({ articles }: { articles: ListedArticle[] }) {
 						<legend className="sr-only">Filter by category</legend>
 						<BadgeButton
 							aria-pressed={!category}
+							data-cuelume-select=""
 							onClick={() => {
 								setCategory("");
 								setPage(1);
@@ -117,6 +123,7 @@ export function BlogList({ articles }: { articles: ListedArticle[] }) {
 								aria-label={
 									category === item.slug ? `Remove ${item.name}` : item.name
 								}
+								data-cuelume-select=""
 								key={item.slug}
 								onClick={() => {
 									setCategory(category === item.slug ? "" : item.slug);
@@ -145,7 +152,7 @@ export function BlogList({ articles }: { articles: ListedArticle[] }) {
 								<span>{article.readingMinutes} min read</span>
 							</div>
 							<h3>
-								<Link href={`/blog/${article.slug}/`}>
+								<Link data-cuelume-navigate="" href={`/blog/${article.slug}/`}>
 									<span>{article.title}</span>
 									<ArrowUpRight
 										aria-hidden="true"
@@ -169,6 +176,7 @@ export function BlogList({ articles }: { articles: ListedArticle[] }) {
 							<Link
 								aria-label={`Read ${article.title}`}
 								className="blog-thumbnail"
+								data-cuelume-navigate=""
 								href={`/blog/${article.slug}/`}
 							>
 								<Image
@@ -188,6 +196,7 @@ export function BlogList({ articles }: { articles: ListedArticle[] }) {
 					<h3>No matching posts.</h3>
 					<p>Try another search or category.</p>
 					<button
+						data-cuelume-select=""
 						onClick={() => {
 							setQuery("");
 							setCategory("");
@@ -203,7 +212,10 @@ export function BlogList({ articles }: { articles: ListedArticle[] }) {
 				<nav aria-label="Blog pagination" className="blog-pagination">
 					<button
 						disabled={page === 1}
-						onClick={() => setPage(page - 1)}
+						onClick={() => {
+							play("navigate", { emphasis: "subtle", direction: "back" });
+							setPage(page - 1);
+						}}
 						type="button"
 					>
 						<ArrowLeft aria-hidden="true" size={16} strokeWidth={1.8} />
@@ -213,6 +225,7 @@ export function BlogList({ articles }: { articles: ListedArticle[] }) {
 						Page {page} of {pageCount}
 					</span>
 					<button
+						data-cuelume-navigate=""
 						disabled={page === pageCount}
 						onClick={() => setPage(page + 1)}
 						type="button"

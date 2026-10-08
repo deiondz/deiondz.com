@@ -1,5 +1,6 @@
 "use client";
 
+import { play } from "cuelume";
 import { ArrowUpRight } from "lucide-react";
 import { useState } from "react";
 
@@ -9,12 +10,15 @@ export function ShareArticle({ title, url }: { title: string; url: string }) {
 		try {
 			if (navigator.share) {
 				await navigator.share({ title, url });
+				play("success", { emphasis: "subtle" });
 				return;
 			}
 			await navigator.clipboard.writeText(url);
 			setMessage("Link copied.");
+			play("success", { emphasis: "subtle" });
 		} catch (error) {
 			if (error instanceof Error && error.name === "AbortError") return;
+			play("error", { emphasis: "subtle" });
 			setMessage("Copy the address from your browser to share this post.");
 		}
 	}

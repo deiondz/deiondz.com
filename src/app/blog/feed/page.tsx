@@ -55,7 +55,10 @@ export default function FeedPage() {
 										</time>
 									</div>
 									<h3>
-										<Link href={`/blog/${article.slug}/`}>
+										<Link
+											data-cuelume-navigate=""
+											href={`/blog/${article.slug}/`}
+										>
 											<span>{article.title}</span>
 											<ArrowUpRight
 												aria-hidden="true"

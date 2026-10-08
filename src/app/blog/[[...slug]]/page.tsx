@@ -97,7 +97,7 @@ export default async function BlogPage({ params }: Props) {
 						alt="Deion D'Souza"
 						className="profile-avatar"
 						height={80}
-                        priority
+						priority
 						src="/deiondz-pfp.png"
 						width={80}
 					/>
@@ -105,7 +105,9 @@ export default async function BlogPage({ params }: Props) {
 						<h1>Blog</h1>
 						<p className="tagline">Notes on design, engineering, and growth.</p>
 						<div className="profile-links">
-							<Link href="/">By Deion D&apos;Souza</Link>
+							<Link data-cuelume-navigate="" href="/">
+								By Deion D&apos;Souza
+							</Link>
 						</div>
 					</div>
 				</header>
@@ -140,7 +142,7 @@ export default async function BlogPage({ params }: Props) {
 			/>
 			<article>
 				<header className="article-heading">
-					<Link className="article-back" href="/blog/">
+					<Link className="article-back" data-cuelume-navigate="" href="/blog/">
 						<ArrowLeft aria-hidden="true" size={16} strokeWidth={1.8} />
 						All posts
 					</Link>
