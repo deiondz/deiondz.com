@@ -66,6 +66,7 @@
 .blog-tools {
 	display: grid;
 	gap: 16px;
+	margin-bottom: 24px;
 }
 .blog-search-slot {
     position: relative;
@@ -73,16 +74,6 @@
     min-width: 40px;
     max-width: 280px;
     height: 40px;
-}
-.blog-search-order {
-    position: absolute;
-    right: 52px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #71717a;
-    font-size: var(--text-ui);
-    pointer-events: none;
-    transition: opacity 150ms;
 }
 .blog-filters,
 .blog-tags {
@@ -108,11 +99,6 @@
 	padding: 8px 12px;
 	background: #fff;
 	color: #3f3f46;
-	font-size: var(--text-ui);
-}
-.blog-results {
-	margin: 24px 0 12px;
-	color: #71717a;
 	font-size: var(--text-ui);
 }
 .blog-card {

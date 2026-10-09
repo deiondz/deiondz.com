@@ -5,8 +5,8 @@ import { ArrowLeft, ArrowRight, ArrowUpRight, BookOpen, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { ExpandingSearch } from "~/components/interior/expanding-search";
-import { Badge, BadgeButton } from "~/components/ui/badge";
 import Image from "~/components/site-image";
+import { Badge, BadgeButton } from "~/components/ui/badge";
 import type { Article } from "~/lib/blog";
 
 type ListedArticle = Pick<
@@ -23,7 +23,6 @@ const pageSize = 10;
 
 export function BlogList({ articles }: { articles: ListedArticle[] }) {
 	const [query, setQuery] = useState("");
-	const [searchOpen, setSearchOpen] = useState(false);
 	const [category, setCategory] = useState("");
 	const [page, setPage] = useState(1);
 	const categories = Array.from(
@@ -44,32 +43,19 @@ export function BlogList({ articles }: { articles: ListedArticle[] }) {
 	const visible = filtered.slice((page - 1) * pageSize, page * pageSize);
 	const archiveHeading = (
 		<div className="blog-archive-heading">
-			<h2 id="all-posts">
-				All posts <span className="project-count">({articles.length})</span>
-			</h2>
-			{articles.length > 0 ? (
+			<h2 id="all-posts">All posts</h2>
+			{articles.length > 0 && (
 				<div className="blog-search-slot">
-					<span
-						aria-hidden={searchOpen}
-						className="blog-search-order"
-						style={{ opacity: searchOpen ? 0 : 1 }}
-					>
-						Newest first
-					</span>
 					<ExpandingSearch
 						label="Search posts"
-						placeholder="Search posts"
-						value={query}
-						resultCount={filtered.length}
-						onOpenChange={setSearchOpen}
 						onChange={(value) => {
 							setQuery(value);
 							setPage(1);
 						}}
+						placeholder="Search posts"
+						value={query}
 					/>
 				</div>
-			) : (
-				<span>Newest first</span>
 			)}
 		</div>
 	);
@@ -119,10 +105,10 @@ export function BlogList({ articles }: { articles: ListedArticle[] }) {
 						</BadgeButton>
 						{categories.map((item) => (
 							<BadgeButton
-								aria-pressed={category === item.slug}
 								aria-label={
 									category === item.slug ? `Remove ${item.name}` : item.name
 								}
+								aria-pressed={category === item.slug}
 								data-cuelume-select=""
 								key={item.slug}
 								onClick={() => {
@@ -138,10 +124,6 @@ export function BlogList({ articles }: { articles: ListedArticle[] }) {
 					</fieldset>
 				)}
 			</div>
-			<p aria-live="polite" className="blog-results">
-				{filtered.length} {filtered.length === 1 ? "post" : "posts"}
-				{query || category ? " found" : ""}
-			</p>
 			<div className="blog-list">
 				{visible.map((article) => (
 					<article className="blog-card" key={article.slug}>
