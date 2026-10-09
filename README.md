@@ -1,12 +1,12 @@
 # Deion's portfolio
 
-Static Next.js portfolio at https://deiondz.com, served by Nginx on the SSH host `deion`.
+Next.js portfolio with a server-rendered blog at https://deiondz.com, served by Nginx on the SSH host `deion`.
 
 ## Blog and Strapi
 
 The blog lives at `/blog/`; the homepage has no blog sections or featured posts.
 It uses the existing Article and Category content types in https://strapi.deiondz.com.
-Only published articles are exported. Drafts remain in Strapi.
+Only published articles are displayed. Drafts remain in Strapi.
 
 In Strapi's Content Manager, create an Article with a title, a unique lowercase
 hyphenated slug, and rich-text content. Excerpts, cover images, and categories
@@ -14,11 +14,10 @@ are optional. Save the entry, then publish it. Images use Strapi's media library
 set their alternative text there. The frontend supports rich text, lists, links,
 quotes, code, and inline images.
 
-GitHub checks for published content changes every 15 minutes, at minutes 7, 22,
-37, and 52. Unchanged content skips the build and deployment. Scheduler delays
-are possible. Publishing, unpublishing, deleting, or editing published content
-is reflected by the next successful rebuild. For an immediate refresh, run the
-Portfolio CI/CD workflow manually on `main` from GitHub's Actions tab.
+Publishing, editing, unpublishing, or deleting an article updates the website
+from Strapi with a maximum 60-second server cache. Refresh the page after the
+cache expires. No Git commit, push, or rebuild is needed for content updates.
+GitHub CI/CD deploys code changes only.
 
 The blog includes search, category filters, pagination, dates, reading time,
 article sharing, metadata, JSON-LD, `/blog/feed.xml`, and `/sitemap.xml`.
@@ -26,26 +25,25 @@ article sharing, metadata, JSON-LD, `/blog/feed.xml`, and `/sitemap.xml`.
 RSS links open the readable `/blog/feed/` page. The XML endpoint remains the
 subscription address for feed readers. The sitemap includes every public page,
 published article, article image, and CMS update dates. `src/app/sitemap.ts` and
-`src/app/robots.ts` generate the files at build time.
+`src/app/robots.ts` generate RSS and sitemap responses on the server.
 
 The canonical Nginx HTTPS server includes `/etc/nginx/snippets/deiondz-xml.conf`,
 copied from `scripts/deploy/xml-locations.conf`. It redirects browser requests
 for the feed XML to the readable page, serves RSS readers XML, and sets inline
 disposition for XML responses. After updating the snippet, run `nginx -t` and
-reload Nginx. Static export does not preserve Next.js response headers in Nginx.
+reload Nginx. XML requests are proxied to the Next.js server.
 
 For local development, copy `.env.example` to `.env.local` and set the dedicated
-read token. This clone is already configured. `npm run dev` and `npm run build`
-sync Strapi first. After editing content while the dev server is running, use
-`npm run blog:sync` and refresh the page. Generated content in `.blog-cache/`
-and `public/blog-version.json` is ignored by Git; no token is included in browser
-bundles or artifacts. A CMS failure stops the build and preserves the live release.
-Pull requests from forks use an empty offline snapshot without CMS credentials.
+read token. This clone is already configured. Refresh after the 60-second cache
+expires to see CMS changes during development. The production service reads
+`STRAPI_URL` and `STRAPI_READ_TOKEN` from root-owned `/etc/portfolio.env`.
+Credentials are excluded from browser bundles and deployment artifacts.
+Builds and pull requests do not need Strapi credentials. A CMS outage returns
+an error for blog requests; the homepage stays available.
 
-Repository Actions secret: `STRAPI_READ_TOKEN` (Article/Category read permissions).
-Repository variable: `STRAPI_URL`. These are already configured. Tests include
-published-only handling, safe links, pagination, and unchanged-content detection:
-`node --test scripts/blog.test.mjs`.
+`node --test scripts/blog.test.mjs` checks published-only handling and safe links.
+After a build, `node --test scripts/ssr.test.mjs` exercises publishing, editing,
+unpublishing, new article routes, RSS and sitemap updates without rebuilding.
 
 ## Local development
 
@@ -59,7 +57,7 @@ npm run dev
 
 Open http://localhost:3000. Saved changes appear locally; commit after reviewing them.
 For a production build preview, stop the dev server and run `npm run preview`.
-The preview serves the static `out/` export on http://127.0.0.1:3000.
+The preview runs the standalone Next.js server on http://127.0.0.1:3000.
 
 ## Publish
 
@@ -86,14 +84,14 @@ Older commits are skipped when they no longer match GitHub's `main` branch.
 
 GitHub builds the site and uploads the exact tested artifact over SSH.
 The server stores it under `/var/www/deiondz.com/releases/<sha>-<run>-<attempt>`
-and atomically switches the `current` symlink. Nginx continues serving requests
-without a reload. The receiver checks the origin homepage, blog, RSS, JavaScript, CSS, and
+and atomically switches the `current` symlink, then restarts `portfolio.service`.
+Nginx proxies requests to localhost port 3001. The receiver checks the origin homepage, blog, RSS, JavaScript, CSS, and
 release marker; a failed origin health check restores the previous release.
 GitHub then verifies https://deiondz.com/deployment.json against the deployed commit.
 A public verification failure marks the run failed; origin rollback is handled
 by the receiver, and earlier releases remain available for manual recovery.
 
-The `portfolio-deploy` account has no sudo permissions. Its SSH key only runs
+The `portfolio-deploy` account can restart or stop only `portfolio.service` via sudo. Its SSH key only runs
 the restricted artifact receiver and cannot open a shell or forward ports.
 GitHub verifies the pinned server host key. Deployment credentials are stored
 as repository Actions secrets, never in the source tree.
@@ -111,7 +109,7 @@ The receiver source is `scripts/deploy/receive.py`; its root-owned installed cop
 is `/usr/local/lib/deiondz-deploy/receive.py` on `deion`. Receiver changes require
 an administrator to reinstall that file. `scripts/deploy/bootstrap.sh` installs
 the receiver and dedicated public key when run as root with those two file paths.
-Only deploy jobs on `main` receive deployment secrets; build jobs use the CMS read token.
+Only deploy jobs on `main` receive deployment secrets; builds use a test CMS.
 Production jobs are serialized and finish before the next deployment starts.
 
 To roll back, use your administrator SSH access and atomically activate a retained release:
@@ -124,6 +122,7 @@ ls -1 releases
 ln -s /var/www/deiondz.com/releases/<release-name> current.rollback
 mv -Tf current.rollback current
 exit
+systemctl restart portfolio.service
 curl -fsS https://deiondz.com/
 ```
 
@@ -143,3 +142,5 @@ validation, restricted command handling, and rollback in a temporary directory.
 
 `npm run check` also checks formatting across the repository. Existing formatting
 differences in supplied assets and configuration are separate from the CI source lint gate.
+
+See `scripts/deploy/SSR.md` for runtime service installation and hosting details.

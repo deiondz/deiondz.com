@@ -97,6 +97,35 @@ class ReceiverTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 receive.main()
 
+    def test_server_release_restarts_and_checks_dynamic_routes(self):
+        files = {'server.js': b'// server', 'public/placeholder': b'',
+                 '.next/static/app.js': b'js', '.next/static/app.css': b'css'}
+        paths = []
+
+        def origin(path):
+            paths.append(path)
+            if path == '/deployment.json':
+                return (self.base / 'current/public/deployment.json').read_bytes()
+            if path.startswith('/_next/static/'):
+                return (self.base / 'current/.next/static' / path.split('/')[-1]).read_bytes()
+            return b'OK'
+
+        with archive(files) as stream, patch.object(receive, 'origin_get', origin), patch.object(receive, 'restart_runtime') as restart:
+            self.deploy(stream)
+        restart.assert_called_once()
+        for path in ['/blog/', '/blog/feed.xml', '/sitemap.xml']:
+            self.assertIn(path, paths)
+
+    def test_server_failure_restarts_previous_server(self):
+        (self.previous / 'server.js').write_text('// previous server')
+        files = {'server.js': b'// server', 'public/placeholder': b'',
+                 '.next/static/app.js': b'js', '.next/static/app.css': b'css'}
+        with archive(files) as stream, patch.object(receive, 'origin_get', side_effect=RuntimeError('unhealthy')), patch.object(receive, 'restart_runtime') as restart:
+            with self.assertRaises(RuntimeError):
+                self.deploy(stream)
+        self.assertEqual(restart.call_count, 2)
+        self.assertEqual((self.base / 'current').resolve(), self.previous)
+
 
 if __name__ == '__main__':
     unittest.main()

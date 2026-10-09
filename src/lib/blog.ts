@@ -1,8 +1,7 @@
 import "server-only";
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import type { BlocksContent } from "@strapi/blocks-react-renderer";
 import { cache } from "react";
+import { loadPublishedArticles } from "~/lib/strapi";
 
 export type Article = {
 	title: string;
@@ -23,11 +22,7 @@ export type Article = {
 	plainText: string;
 };
 
-export const getArticles = cache((): Article[] => {
-	return JSON.parse(
-		readFileSync(join(process.cwd(), ".blog-cache/articles.json"), "utf8"),
-	);
-});
+export const getArticles = cache(loadPublishedArticles);
 
 export function articleUrl(slug: string) {
 	return `https://deiondz.com/blog/${slug}/`;

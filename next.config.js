@@ -6,7 +6,7 @@ import "./src/env.js";
 
 /** @type {import("next").NextConfig} */
 const config = {
-	output: "export",
+	output: "standalone",
 	trailingSlash: true,
 	images: { unoptimized: true },
 };

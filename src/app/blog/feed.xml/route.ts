@@ -1,6 +1,6 @@
 import { articleUrl, getArticles } from "~/lib/blog";
 
-export const dynamic = "force-static";
+export const dynamic = "force-dynamic";
 const escapeXml = (value: string) =>
 	value.replace(
 		/[<>&"']/g,
@@ -14,8 +14,8 @@ const escapeXml = (value: string) =>
 			})[character] || character,
 	);
 
-export function GET() {
-	const articles = getArticles();
+export async function GET() {
+	const articles = await getArticles();
 	const items = articles
 		.map(
 			(article) =>

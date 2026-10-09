@@ -1,0 +1,27 @@
+[Unit]
+Description=Deion portfolio Next.js server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=portfolio-deploy
+Group=portfolio-deploy
+WorkingDirectory=/var/www/deiondz.com/current
+Environment=NODE_ENV=production
+Environment=HOSTNAME=127.0.0.1
+Environment=PORT=3001
+Environment=NEXT_TELEMETRY_DISABLED=1
+EnvironmentFile=/etc/portfolio.env
+ExecStart=/opt/strapi-runtime/bin/node server.js
+Restart=always
+RestartSec=2
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/www/deiondz.com
+UMask=0027
+
+[Install]
+WantedBy=multi-user.target

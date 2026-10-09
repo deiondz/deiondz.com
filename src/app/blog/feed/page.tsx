@@ -3,14 +3,16 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { formatDate, getArticles } from "~/lib/blog";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
 	title: "RSS feed | Deion D'Souza",
 	description: "Follow new articles by Deion D'Souza in your RSS reader.",
 	alternates: { canonical: "/blog/feed/" },
 };
 
-export default function FeedPage() {
-	const articles = getArticles();
+export default async function FeedPage() {
+	const articles = await getArticles();
 	return (
 		<>
 			<header className="blog-heading">

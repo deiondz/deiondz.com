@@ -6,19 +6,12 @@ import { ArticleBody } from "~/components/article-body";
 import { ArticleReadingProgress } from "~/components/article-reading-progress";
 import { BlogList } from "~/components/blog-list";
 import { ShareArticle } from "~/components/share-article";
-import { Badge } from "~/components/ui/badge";
 import Image from "~/components/site-image";
+import { Badge } from "~/components/ui/badge";
 import { articleUrl, formatDate, getArticles } from "~/lib/blog";
 
 type Props = { params: Promise<{ slug?: string[] }> };
-export const dynamicParams = false;
-
-export function generateStaticParams() {
-	return [
-		{ slug: [] },
-		...getArticles().map((article) => ({ slug: [article.slug] })),
-	];
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
 	const { slug } = await params;
@@ -42,7 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 			},
 		};
 	}
-	const article = getArticles().find((item) => item.slug === slug[0]);
+	const article = (await getArticles()).find((item) => item.slug === slug[0]);
 	if (slug.length !== 1 || !article) notFound();
 	const images = article.coverImage
 		? [
@@ -80,7 +73,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function BlogPage({ params }: Props) {
 	const { slug } = await params;
-	const articles = getArticles();
+	const articles = await getArticles();
 	if (!slug?.length) {
 		const listed = articles.map(
 			({
@@ -149,7 +142,9 @@ export default async function BlogPage({ params }: Props) {
 					{article.categories.length > 0 && (
 						<ul aria-label="Categories" className="blog-tags">
 							{article.categories.map((item) => (
-								<li key={item.slug}><Badge>{item.name}</Badge></li>
+								<li key={item.slug}>
+									<Badge>{item.name}</Badge>
+								</li>
 							))}
 						</ul>
 					)}

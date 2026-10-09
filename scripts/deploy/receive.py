@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""Restricted SSH receiver for this portfolio's static build artifacts."""
+"""Restricted SSH receiver for this portfolio's Next.js build artifacts."""
 
 import fcntl
 import hashlib
@@ -15,8 +15,8 @@ import tempfile
 
 BASE = Path('/var/www/deiondz.com')
 DOMAIN = 'deiondz.com'
-MAX_ARCHIVE = 100 * 1024 * 1024
-MAX_EXTRACTED = 250 * 1024 * 1024
+MAX_ARCHIVE = 150 * 1024 * 1024
+MAX_EXTRACTED = 500 * 1024 * 1024
 
 
 def activate(target):
@@ -31,6 +31,13 @@ def origin_get(path):
         '--retry', '2', '--retry-all-errors', '--max-time', '15',
         '--resolve', f'{DOMAIN}:443:127.0.0.1', f'https://{DOMAIN}{path}',
     ])
+
+
+def restart_runtime():
+    subprocess.run(['sudo', '/usr/bin/systemctl', 'restart', 'portfolio.service'], check=True)
+    subprocess.run(['curl', '--fail', '--silent', '--show-error', '--retry', '20',
+                    '--retry-all-errors', '--retry-delay', '1', '--max-time', '5',
+                    'http://127.0.0.1:3001/deployment.json'], check=True, stdout=subprocess.DEVNULL)
 
 
 def deploy(sha, run_id, attempt):
@@ -60,20 +67,24 @@ def deploy(sha, run_id, attempt):
                         raise ValueError(f'Unsafe archive path: {member.name}')
                 bundle.extractall(release, members=members, filter='data')
         index = release / 'index.html'
-        if not index.is_file() or index.stat().st_size == 0:
+        runtime = (release / 'server.js').is_file()
+        if not runtime and (not index.is_file() or index.stat().st_size == 0):
             raise ValueError('Build is missing index.html.')
         # Nginx needs read access regardless of artifact permissions.
         for path in release.rglob('*'):
             path.chmod(0o755 if path.is_dir() else 0o644)
         assets = [
-            next((release / '_next/static').rglob('*.js')),
-            next((release / '_next/static').rglob('*.css')),
+            next((release / ('.next/static' if runtime else '_next/static')).rglob('*.js')),
+            next((release / ('.next/static' if runtime else '_next/static')).rglob('*.css')),
         ]
         marker = {'sha': sha, 'run_id': run_id, 'attempt': attempt}
-        (release / 'deployment.json').write_text(json.dumps(marker) + '\n')
+        (release / ('public/deployment.json' if runtime else 'deployment.json')).write_text(json.dumps(marker) + '\n')
         activate(release)
         switched = True
-        if hashlib.sha256(origin_get('/')).digest() != hashlib.sha256(index.read_bytes()).digest():
+        if runtime:
+            restart_runtime()
+            origin_get('/')
+        if not runtime and hashlib.sha256(origin_get('/')).digest() != hashlib.sha256(index.read_bytes()).digest():
             raise RuntimeError('Origin homepage differs from the uploaded build.')
         if json.loads(origin_get('/deployment.json')) != marker:
             raise RuntimeError('Origin release marker did not match.')
@@ -81,14 +92,22 @@ def deploy(sha, run_id, attempt):
             generated = release / relative
             if generated.is_file() and hashlib.sha256(origin_get(url)).digest() != hashlib.sha256(generated.read_bytes()).digest():
                 raise RuntimeError(f'Origin blog page did not match: {relative}')
+        if runtime:
+            for path in ['/blog/', '/blog/feed.xml', '/sitemap.xml']:
+                origin_get(path)
         for asset in assets:
-            body = origin_get('/' + asset.relative_to(release).as_posix())
+            relative = asset.relative_to(release).as_posix()
+            body = origin_get('/' + (relative.replace('.next/static/', '_next/static/', 1) if runtime else relative))
             if hashlib.sha256(body).digest() != hashlib.sha256(asset.read_bytes()).digest():
                 raise RuntimeError(f'Origin asset did not match: {asset.name}')
         print(f'Deployed {sha}; origin pages, RSS, JavaScript, and CSS verified.', flush=True)
     except BaseException:
         if switched:
             activate(previous)
+            if (previous / 'server.js').is_file():
+                restart_runtime()
+            elif runtime:
+                subprocess.run(['sudo', '/usr/bin/systemctl', 'stop', 'portfolio.service'], check=True)
             print(f'Health check failed; restored {previous.name}.', file=sys.stderr, flush=True)
         raise
 
