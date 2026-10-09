@@ -6,6 +6,35 @@ const cacheMilliseconds = 60_000;
 let cached: { articles: Article[]; expires: number } | undefined;
 let pending: Promise<Article[]> | undefined;
 
+export async function loadPreviewArticle(
+	documentId: string,
+): Promise<Article | null> {
+	if (!/^[a-zA-Z0-9]+$/.test(documentId)) return null;
+	const base = process.env.STRAPI_URL || "https://strapi.deiondz.com";
+	const token = process.env.STRAPI_READ_TOKEN;
+	if (!token) throw new Error("STRAPI_READ_TOKEN is required on the server.");
+	const url = new URL(`/api/articles/${documentId}`, base);
+	url.searchParams.set("status", "draft");
+	url.searchParams.set("populate[coverImage]", "true");
+	url.searchParams.set("populate[categories]", "true");
+	const response = await fetch(url, {
+		headers: { Authorization: `Bearer ${token}` },
+		cache: "no-store",
+		signal: AbortSignal.timeout(10_000),
+	});
+	if (response.status === 404) return null;
+	if (!response.ok) throw new Error(`Strapi returned HTTP ${response.status}.`);
+	const { data } = await response.json();
+	if (!data) return null;
+	// Drafts have no publication date; use their edit date for the preview only.
+	return (
+		normalizeArticles(
+			[{ ...data, publishedAt: data.publishedAt || data.updatedAt }],
+			base,
+		)[0] || null
+	);
+}
+
 async function fetchPublishedArticles(): Promise<Article[]> {
 	const base = process.env.STRAPI_URL || "https://strapi.deiondz.com";
 	const token = process.env.STRAPI_READ_TOKEN;

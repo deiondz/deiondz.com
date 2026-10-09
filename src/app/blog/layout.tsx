@@ -1,8 +1,9 @@
 import { ArrowLeft, Rss } from "lucide-react";
 import Link from "next/link";
+import { draftMode } from "next/headers";
 import "./blog.css";
 
-export default function BlogLayout({
+export default async function BlogLayout({
 	children,
 }: {
 	children: React.ReactNode;
@@ -24,6 +25,14 @@ export default function BlogLayout({
 						RSS feed
 					</Link>
 				</nav>
+				{(await draftMode()).isEnabled && (
+					<aside className="blog-preview-banner" aria-label="Preview mode">
+						<p>Draft preview — changes are not published.</p>
+						<form action="/api/preview/" method="post">
+							<button type="submit">Exit preview</button>
+						</form>
+					</aside>
+				)}
 				{children}
 				<footer className="blog-footer">
 					<Link data-cuelume-navigate="" href="/">

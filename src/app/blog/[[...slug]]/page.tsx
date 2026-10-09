@@ -1,6 +1,7 @@
 import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { draftMode } from "next/headers";
 import { notFound } from "next/navigation";
 import { ArticleBody } from "~/components/article-body";
 import { ArticleReadingProgress } from "~/components/article-reading-progress";
@@ -8,12 +9,19 @@ import { BlogList } from "~/components/blog-list";
 import { ShareArticle } from "~/components/share-article";
 import Image from "~/components/site-image";
 import { Badge } from "~/components/ui/badge";
-import { articleUrl, formatDate, getArticles } from "~/lib/blog";
+import { articleUrl, formatDate } from "~/lib/blog";
+import { getBlogPageArticles } from "~/lib/blog-preview";
 
 type Props = { params: Promise<{ slug?: string[] }> };
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+	if ((await draftMode()).isEnabled) {
+		return {
+			title: "Article preview | Deion D'Souza",
+			robots: { index: false, follow: false },
+		};
+	}
 	const { slug } = await params;
 	if (!slug?.length) {
 		return {
@@ -35,7 +43,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 			},
 		};
 	}
-	const article = (await getArticles()).find((item) => item.slug === slug[0]);
+	const article = (await getBlogPageArticles()).find(
+		(item) => item.slug === slug[0],
+	);
 	if (slug.length !== 1 || !article) notFound();
 	const images = article.coverImage
 		? [
@@ -73,7 +83,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function BlogPage({ params }: Props) {
 	const { slug } = await params;
-	const articles = await getArticles();
+	const articles = await getBlogPageArticles();
 	if (!slug?.length) {
 		const listed = articles.map(
 			({
