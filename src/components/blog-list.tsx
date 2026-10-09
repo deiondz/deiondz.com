@@ -127,40 +127,38 @@ export function BlogList({ articles }: { articles: ListedArticle[] }) {
 			<div className="blog-list">
 				{visible.map((article) => (
 					<article className="blog-card" key={article.slug}>
-						<div className="blog-card-copy">
-							<div className="blog-meta">
-								<time dateTime={article.publishedAt}>{article.dateLabel}</time>
-								<span aria-hidden="true">·</span>
-								<span>{article.readingMinutes} min read</span>
-							</div>
-							<h3>
-								<Link data-cuelume-navigate="" href={`/blog/${article.slug}/`}>
+						<Link
+							className="blog-card-link"
+							data-cuelume-navigate=""
+							href={`/blog/${article.slug}/`}
+						>
+							<div className="blog-card-copy">
+								<div className="blog-meta">
+									<time dateTime={article.publishedAt}>{article.dateLabel}</time>
+									<span aria-hidden="true">·</span>
+									<span>{article.readingMinutes} min read</span>
+								</div>
+								<h3>
 									<span>{article.title}</span>
 									<ArrowUpRight
 										aria-hidden="true"
 										size={18}
 										strokeWidth={1.8}
 									/>
-								</Link>
-							</h3>
-							<p>{article.excerpt}</p>
-							{article.categories.length > 0 && (
-								<ul aria-label="Categories" className="blog-tags">
-									{article.categories.map((item) => (
-										<li key={item.slug}>
-											<Badge>{item.name}</Badge>
-										</li>
-									))}
-								</ul>
-							)}
-						</div>
-						{article.coverImage && (
-							<Link
-								aria-label={`Read ${article.title}`}
-								className="blog-thumbnail"
-								data-cuelume-navigate=""
-								href={`/blog/${article.slug}/`}
-							>
+								</h3>
+								<p>{article.excerpt}</p>
+								{article.categories.length > 0 && (
+									<ul aria-label="Categories" className="blog-tags">
+										{article.categories.map((item) => (
+											<li key={item.slug}>
+												<Badge>{item.name}</Badge>
+											</li>
+										))}
+									</ul>
+								)}
+							</div>
+							{article.coverImage && (
+								<div aria-hidden="true" className="blog-thumbnail">
 								<Image
 									alt={article.coverImage.alternativeText || ""}
 									height={120}
@@ -168,8 +166,9 @@ export function BlogList({ articles }: { articles: ListedArticle[] }) {
 									src={article.coverImage.url}
 									width={160}
 								/>
-							</Link>
-						)}
+								</div>
+							)}
+						</Link>
 					</article>
 				))}
 			</div>
