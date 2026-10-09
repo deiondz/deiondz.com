@@ -153,10 +153,14 @@
 	line-height: 1.4;
 	letter-spacing: -0.015em;
 }
-.blog-card :where(h3 a) {
+.blog-card h3 {
 	display: inline-flex;
 	align-items: baseline;
 	gap: 6px;
+	max-width: 100%;
+}
+.blog-card h3 > span {
+	min-width: 0;
 }
 .blog-card h3 svg {
 	flex: none;
