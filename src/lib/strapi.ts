@@ -8,13 +8,14 @@ let pending: Promise<Article[]> | undefined;
 
 export async function loadPreviewArticle(
 	documentId: string,
+	status: "draft" | "published" = "draft",
 ): Promise<Article | null> {
 	if (!/^[a-zA-Z0-9]+$/.test(documentId)) return null;
 	const base = process.env.STRAPI_URL || "https://strapi.deiondz.com";
 	const token = process.env.STRAPI_READ_TOKEN;
 	if (!token) throw new Error("STRAPI_READ_TOKEN is required on the server.");
 	const url = new URL(`/api/articles/${documentId}`, base);
-	url.searchParams.set("status", "draft");
+	url.searchParams.set("status", status);
 	url.searchParams.set("populate[coverImage]", "true");
 	url.searchParams.set("populate[categories]", "true");
 	const response = await fetch(url, {

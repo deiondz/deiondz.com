@@ -15,10 +15,11 @@ export async function GET(request: Request) {
 		return new Response("Invalid preview token", { status: 401 });
 	}
 	const documentId = params.get("documentId") || "";
-	const article = await loadPreviewArticle(documentId);
+	const status = params.get("status") === "published" ? "published" : "draft";
+	const article = await loadPreviewArticle(documentId, status);
 	if (!article) return new Response("Article not found", { status: 404 });
 	const mode = await draftMode();
-	if (params.get("status") === "published") {
+	if (status === "published") {
 		mode.disable();
 		(await cookies()).delete("blog-preview-document");
 	} else {
