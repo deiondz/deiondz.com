@@ -174,11 +174,12 @@ export default async function BlogPage({ params }: Props) {
 					<Image
 						alt={article.coverImage.alternativeText || ""}
 						className="article-cover"
-						height={article.coverImage.height || 480}
+						fit="cover"
+						height={720}
 						placeholder={article.coverImage.placeholder}
 						priority
 						src={article.coverImage.url}
-						width={article.coverImage.width || 720}
+						width={1280}
 					/>
 				)}
 				<ArticleReadingProgress
