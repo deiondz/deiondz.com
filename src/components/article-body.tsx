@@ -5,6 +5,7 @@ import {
 	BlocksRenderer,
 } from "@strapi/blocks-react-renderer";
 import Image from "~/components/site-image";
+import { getMediaEmbed, linkifyMediaUrls } from "~/lib/media-embeds";
 import CodeBlock from "./code-block";
 
 export function ArticleBody({ content }: { content: BlocksContent }) {
@@ -36,13 +37,38 @@ export function ArticleBody({ content }: { content: BlocksContent }) {
 							{image.caption && <figcaption>{image.caption}</figcaption>}
 						</figure>
 					),
-					link: ({ children, url }) => (
-						<a data-cuelume-navigate="" href={url}>
-							{children}
-						</a>
-					),
+					link: ({ children, url }) => {
+						const embed = getMediaEmbed(url);
+						if (!embed) {
+							return (
+								<a data-cuelume-navigate="" href={url}>
+									{children}
+								</a>
+							);
+						}
+						return (
+							<span className={`article-embed article-embed-${embed.provider}`}>
+								<iframe
+									allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+									allowFullScreen
+									height={embed.height}
+									loading="lazy"
+									referrerPolicy="strict-origin-when-cross-origin"
+									src={embed.src}
+									title={
+										embed.provider === "youtube"
+											? "YouTube video player"
+											: "Spotify music player"
+									}
+								/>
+								<a className="article-embed-source" href={url}>
+									{children}
+								</a>
+							</span>
+						);
+					},
 				}}
-				content={content}
+				content={linkifyMediaUrls(content)}
 			/>
 		</div>
 	);
