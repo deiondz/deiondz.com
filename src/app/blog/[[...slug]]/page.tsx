@@ -1,11 +1,12 @@
 import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { draftMode } from "next/headers";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArticleBody } from "~/components/article-body";
 import { ArticleReadingProgress } from "~/components/article-reading-progress";
 import { BlogList } from "~/components/blog-list";
+import { BlogSubscription } from "~/components/blog-subscription";
 import { ShareArticle } from "~/components/share-article";
 import Image from "~/components/site-image";
 import { Badge } from "~/components/ui/badge";
@@ -83,6 +84,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function BlogPage({ params }: Props) {
 	const { slug } = await params;
+	const preview = (await draftMode()).isEnabled;
 	const articles = await getBlogPageArticles();
 	if (!slug?.length) {
 		const listed = articles.map(
@@ -114,6 +116,7 @@ export default async function BlogPage({ params }: Props) {
 						</div>
 					</div>
 				</header>
+				{!preview && <BlogSubscription />}
 				<BlogList articles={listed} />
 			</>
 		);
@@ -188,6 +191,7 @@ export default async function BlogPage({ params }: Props) {
 					<ArticleBody content={article.content} />
 				</ArticleReadingProgress>
 				<ShareArticle title={article.title} url={articleUrl(article.slug)} />
+				{!preview && <BlogSubscription />}
 			</article>
 		</>
 	);

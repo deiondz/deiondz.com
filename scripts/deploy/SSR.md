@@ -27,3 +27,8 @@ Local preview: `npm run dev`. Local production validation: `npm run build`,
 `node --test scripts/ssr.test.mjs`, then `npm run typecheck`. Production start
 uses `server.js` from the standalone artifact, with `public` and `.next/static`
 copied into it as shown in the workflow.
+
+The proxy snippet includes `cloudflare-real-ip.conf`, installed as
+`/etc/nginx/snippets/deiondz-real-ip.conf`. It trusts Cloudflare's visitor-IP
+header only from official proxy ranges and sets `X-Real-IP` for subscription
+rate limits. Keep those ranges current with Cloudflare's published IP lists.

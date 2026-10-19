@@ -32,9 +32,14 @@ jobs:
       - run: bun install --frozen-lockfile
       - name: Test CMS content handling
         run: node --test scripts/blog.test.mjs
+      - name: Test email subscriptions
+        run: |
+          npm ci --prefix cms/blog-subscriptions --ignore-scripts --no-audit --no-fund
+          npm run test:subscriptions
       - name: Test deployment validation and rollback
         run: python3 scripts/deploy/test_receive.py
       - run: bun run lint
+      - run: node node_modules/@biomejs/biome/bin/biome lint cms/blog-subscriptions
       - run: bun run build
       - run: node --test scripts/ssr.test.mjs
       - run: bun run typecheck

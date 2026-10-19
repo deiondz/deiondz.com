@@ -22,6 +22,13 @@ GitHub CI/CD deploys code changes only.
 The blog includes search, category filters, pagination, dates, reading time,
 article sharing, metadata, JSON-LD, `/blog/feed.xml`, and `/sitemap.xml`.
 
+Email signup appears above the blog list and below published articles. Readers
+confirm their address before receiving full new posts. The Strapi extension
+handles subscribers, first-publication detection, delivery jobs, and ZeptoMail.
+See [`cms/blog-subscriptions/README.md`](cms/blog-subscriptions/README.md) for
+installation, secrets, webhook setup, tests, and rollback. Sending must be
+explicitly enabled in the CMS runtime configuration.
+
 RSS links open the readable `/blog/feed/` page. The XML endpoint remains the
 subscription address for feed readers. The sitemap includes every public page,
 published article, article image, and CMS update dates. `src/app/sitemap.ts` and

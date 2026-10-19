@@ -1,0 +1,13 @@
+{
+	"name": "deiondz-blog-subscriptions",
+	"private": true,
+	"version": "1.0.0",
+	"type": "module",
+	"dependencies": {
+		"zeptomail": "8.0.1"
+	},
+	"scripts": {
+		"test": "node --test test/render.test.mjs test/security.test.mjs",
+		"test:integration": "node --test --test-concurrency=1 test/service.test.mjs"
+	}
+}

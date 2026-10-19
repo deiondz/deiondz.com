@@ -31,8 +31,44 @@ test("SSR picks up publishing, edits and unpublishing without a rebuild", {
 			publishedAt: null,
 		},
 	];
+	let subscriptionCalls = 0;
+	let subscriptionStatus = 200;
 	const cms = createServer((request, response) => {
+		if (request.url.startsWith("/api/blog-subscriptions/")) {
+			assert.equal(
+				request.headers.authorization,
+				"Bearer test-subscription-secret",
+			);
+			subscriptionCalls++;
+			response.writeHead(subscriptionStatus, {
+				"Content-Type": "application/json",
+			});
+			response.end(
+				JSON.stringify({
+					message:
+						subscriptionStatus === 200
+							? "Check your inbox to confirm your subscription."
+							: "Please try again later.",
+				}),
+			);
+			return;
+		}
 		assert.equal(request.headers.authorization, "Bearer test-read-token");
+		if (request.url.startsWith("/api/articles/previewdocument")) {
+			response.setHeader("Content-Type", "application/json");
+			response.end(
+				JSON.stringify({
+					data: {
+						...original,
+						documentId: "previewdocument",
+						slug: "private-draft",
+						title: "Private draft",
+						publishedAt: null,
+					},
+				}),
+			);
+			return;
+		}
 		assert.equal(
 			new URL(request.url, "http://cms").searchParams.get("status"),
 			"published",
@@ -67,6 +103,9 @@ test("SSR picks up publishing, edits and unpublishing without a rebuild", {
 				...process.env,
 				STRAPI_URL: `http://127.0.0.1:${cms.address().port}`,
 				STRAPI_READ_TOKEN: "test-read-token",
+				STRAPI_INTERNAL_URL: `http://127.0.0.1:${cms.address().port}`,
+				BLOG_SUBSCRIPTIONS_INTERNAL_SECRET: "test-subscription-secret",
+				PREVIEW_SECRET: "test-preview-secret",
 			},
 			stdio: ["ignore", "pipe", "pipe"],
 		},
@@ -97,6 +136,51 @@ test("SSR picks up publishing, edits and unpublishing without a rebuild", {
 		}
 		assert.ok(ready, logs);
 		assert.match(await text("/blog/"), /SSR original article/);
+		assert.match(await text("/blog/"), /Get new posts by email/);
+		assert.match(await text("/blog/ssr-original/"), /Get new posts by email/);
+		const confirmation = await text("/blog/confirm/?token=opaque-test");
+		assert.match(confirmation, /Confirm subscription/);
+		assert.match(confirmation, /noindex/);
+		assert.equal(
+			subscriptionCalls,
+			0,
+			"GET confirmation must not activate a subscriber",
+		);
+		await text("/blog/unsubscribe/?token=opaque-test");
+		assert.equal(
+			subscriptionCalls,
+			0,
+			"GET unsubscribe must not change subscription state",
+		);
+		const subscribeRequest = () =>
+			fetch(`${base}/api/blog-subscriptions/subscribe/`, {
+				method: "POST",
+				headers: {
+					origin: "https://deiondz.com",
+					"content-type": "application/json",
+				},
+				body: JSON.stringify({ email: "reader@example.com" }),
+			});
+		assert.equal((await subscribeRequest()).status, 200);
+		subscriptionStatus = 503;
+		assert.equal((await subscribeRequest()).status, 503);
+		subscriptionStatus = 200;
+		const preview = await fetch(
+			`${base}/api/preview/?secret=test-preview-secret&documentId=previewdocument`,
+			{ redirect: "manual" },
+		);
+		assert.equal(preview.status, 307);
+		const cookie = preview.headers
+			.getSetCookie()
+			.map((value) => value.split(";")[0])
+			.join("; ");
+		const draft = await fetch(`${base}/blog/private-draft/`, {
+			headers: { cookie },
+		});
+		const draftHtml = await draft.text();
+		assert.equal(draft.status, 200);
+		assert.match(draftHtml, /Draft preview/);
+		assert.doesNotMatch(draftHtml, /Get new posts by email/);
 		assert.doesNotMatch(await text("/blog/"), /Private draft|test-read-token/);
 		await text("/blog/ssr-new-post/", 404);
 		articles = [
