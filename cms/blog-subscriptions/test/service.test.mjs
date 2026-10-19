@@ -338,6 +338,10 @@ test("actual Strapi publication middleware runs only on first publish and cancel
 test("confirmation emails the owner once; owner bounces never suppress the reader", async () => {
 	service.options.settings.notifyTo = "owner@example.com";
 	const token = await signup();
+	assert.equal(
+		await query("job").count({ where: { kind: "notification" } }),
+		0,
+	);
 	await service.confirm(token);
 	await service.confirm(token);
 	await service.tick();
@@ -360,5 +364,23 @@ test("confirmation emails the owner once; owner bounces never suppress the reade
 			})
 		).state,
 		"active",
+	);
+});
+
+test("turning owner notices off cancels queued notices and allows new confirmations", async () => {
+	service.options.settings.notifyTo = "owner@example.com";
+	const token = await signup();
+	await service.confirm(token);
+	service.options.settings.notifyTo = "";
+	await service.tick();
+	assert.equal(sent.length, 1);
+	assert.equal(
+		(await query("job").findOne({ where: { kind: "notification" } })).state,
+		"cancelled",
+	);
+	await active("another@example.com");
+	assert.equal(
+		await query("job").count({ where: { kind: "notification" } }),
+		1,
 	);
 });

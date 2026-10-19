@@ -230,6 +230,8 @@ export function createService(strapi, options) {
 			where: { id: job.subscriberId },
 		});
 		const update = (data) => db("job").update({ where: { id: job.id }, data });
+		if (job.kind === "notification" && !settings.notifyTo)
+			return update({ state: "cancelled" });
 		if (
 			!subscriber ||
 			subscriber.version !== job.subscriberVersion ||
