@@ -14,6 +14,10 @@ function settings() {
 		from: process.env.BLOG_SUBSCRIPTIONS_FROM || "blog@deiondz.com",
 		replyTo:
 			process.env.BLOG_SUBSCRIPTIONS_REPLY_TO || "deiondsouza12@gmail.com",
+		// Set BLOG_SUBSCRIPTIONS_NOTIFY_TO to an empty value to turn off new-subscriber emails.
+		notifyTo:
+			process.env.BLOG_SUBSCRIPTIONS_NOTIFY_TO ??
+			(process.env.BLOG_SUBSCRIPTIONS_REPLY_TO || "deiondsouza12@gmail.com"),
 		url: process.env.ZEPTOMAIL_URL || "https://cpaas.zoho.in/v1.1/email",
 		token: process.env.ZEPTOMAIL_TOKEN,
 		intervalMs: 1000,
@@ -28,7 +32,8 @@ function settings() {
 			config.webhookSecret.length < 32 ||
 			!config.token ||
 			!normalizeEmail(config.from) ||
-			!normalizeEmail(config.replyTo))
+			!normalizeEmail(config.replyTo) ||
+			(config.notifyTo && !normalizeEmail(config.notifyTo)))
 	)
 		throw new Error(
 			"Blog subscriptions require valid sender addresses and server secrets before enabling.",

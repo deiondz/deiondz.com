@@ -45,7 +45,7 @@ export const schemas = {
 		"Blog email delivery",
 		{
 			deliveryKey: string({ unique: true, required: true }),
-			kind: enumeration("confirmation", "article"),
+			kind: enumeration("confirmation", "article", "notification"),
 			state: enumeration(
 				"pending",
 				"sending",

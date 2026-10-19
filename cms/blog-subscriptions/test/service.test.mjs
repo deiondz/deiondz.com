@@ -335,3 +335,30 @@ test("actual Strapi publication middleware runs only on first publish and cancel
 		"cancelled",
 	);
 });
+test("confirmation emails the owner once; owner bounces never suppress the reader", async () => {
+	service.options.settings.notifyTo = "owner@example.com";
+	const token = await signup();
+	await service.confirm(token);
+	await service.confirm(token);
+	await service.tick();
+	const notices = sent.filter(
+		(mail) => mail.to[0].email_address.address === "owner@example.com",
+	);
+	assert.equal(notices.length, 1);
+	assert.match(notices[0].subject, /reader@example\.com/);
+	assert.match(notices[0].textbody, /1 active subscriber\./);
+	await service.webhook({
+		event_name: ["hardbounce"],
+		event_message: [
+			{ email_info: { client_reference: notices[0].client_reference } },
+		],
+	});
+	assert.equal(
+		(
+			await query("subscriber").findOne({
+				where: { email: "reader@example.com" },
+			})
+		).state,
+		"active",
+	);
+});

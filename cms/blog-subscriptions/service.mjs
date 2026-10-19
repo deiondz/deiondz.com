@@ -1,4 +1,8 @@
-import { renderArticleEmail, renderConfirmation } from "./render.mjs";
+import {
+	renderArticleEmail,
+	renderConfirmation,
+	renderSubscriberNotice,
+} from "./render.mjs";
 import { hash, makeToken, normalizeEmail, readToken } from "./security.mjs";
 
 export const UIDS = {
@@ -117,12 +121,24 @@ export function createService(strapi, options) {
 					400,
 					"This confirmation link is no longer valid. Please subscribe again.",
 				);
-			if (subscriber.state === "pending")
-				await db("subscriber").update({
-					where: { id: subscriber.id },
-					data: { state: "active", confirmedAt: date(now()) },
+			if (subscriber.state !== "pending") return;
+			await db("subscriber").update({
+				where: { id: subscriber.id },
+				data: { state: "active", confirmedAt: date(now()) },
+			});
+			if (settings.notifyTo)
+				await db("job").create({
+					data: {
+						deliveryKey: `notify:${subscriber.id}:${subscriber.version}`,
+						kind: "notification",
+						state: "pending",
+						subscriberId: subscriber.id,
+						subscriberVersion: subscriber.version,
+						nextAttemptAt: date(now()),
+					},
 				});
 		});
+		wake();
 		return {
 			message: "You’re subscribed. New posts will arrive in your inbox.",
 		};
@@ -217,7 +233,7 @@ export function createService(strapi, options) {
 		if (
 			!subscriber ||
 			subscriber.version !== job.subscriberVersion ||
-			subscriber.state !== (job.kind === "article" ? "active" : "pending")
+			subscriber.state !== (job.kind === "confirmation" ? "pending" : "active")
 		)
 			return update({ state: "cancelled" });
 		let mail;
@@ -231,6 +247,10 @@ export function createService(strapi, options) {
 			mail = renderConfirmation(
 				link("confirm", subscriberToken("confirm", subscriber)),
 			);
+		} else if (job.kind === "notification") {
+			mail = renderSubscriberNotice(subscriber, {
+				total: await db("subscriber").count({ where: { state: "active" } }),
+			});
 		} else {
 			const publication = await db("publication").findOne({
 				where: { articleDocumentId: job.articleDocumentId },
@@ -251,7 +271,16 @@ export function createService(strapi, options) {
 				...mail,
 				from: { address: settings.from, name: "Deion D’Souza" },
 				reply_to: [{ address: settings.replyTo, name: "Deion D’Souza" }],
-				to: [{ email_address: { address: subscriber.email } }],
+				to: [
+					{
+						email_address: {
+							address:
+								job.kind === "notification"
+									? settings.notifyTo
+									: subscriber.email,
+						},
+					},
+				],
 				track_opens: false,
 				track_clicks: false,
 				client_reference: job.deliveryKey,
@@ -357,16 +386,18 @@ export function createService(strapi, options) {
 					names.includes("feedback") ||
 					names.includes("complaint")
 				) {
-					await db("subscriber").update({
-						where: { id: job.subscriberId },
-						data: { state: "suppressed", tokenHash: null },
-					});
 					await db("job").update({
 						where: { id: job.id },
 						data: {
 							state: "failed",
 							lastError: "Recipient bounced or reported spam.",
 						},
+					});
+					// Owner notices go to the owner, so their bounces say nothing about the subscriber.
+					if (job.kind === "notification") return;
+					await db("subscriber").update({
+						where: { id: job.subscriberId },
+						data: { state: "suppressed", tokenHash: null },
 					});
 					await db("job").updateMany({
 						where: { subscriberId: job.subscriberId, state: "pending" },

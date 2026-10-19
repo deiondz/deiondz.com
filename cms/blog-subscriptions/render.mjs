@@ -70,3 +70,18 @@ export function renderConfirmation(url) {
 		{ preheader: "One click to start getting new posts by email." },
 	);
 }
+
+export function renderSubscriberNotice(subscriber, { total }) {
+	const when = new Intl.DateTimeFormat("en-IN", {
+		dateStyle: "medium",
+		timeStyle: "short",
+		timeZone: "Asia/Kolkata",
+	}).format(new Date(subscriber.confirmedAt || Date.now()));
+	const count = `${total} active subscriber${total === 1 ? "" : "s"}`;
+	return emailShell(
+		`New blog subscriber: ${subscriber.email}`,
+		`<p style="margin:0 0 12px;font-size:13px;line-height:1.4;color:${muted}">New subscriber</p><h1 style="margin:0 0 16px;font:700 24px/1.3 ${font};color:#18181b">${escapeHtml(subscriber.email)}</h1><p style="margin:0 0 8px">Confirmed their subscription on ${escapeHtml(when)} IST.</p><p style="margin:0;color:#52525b">You now have ${count}.</p>`,
+		`New subscriber: ${subscriber.email}\nConfirmed: ${when} IST\nYou now have ${count}.`,
+		{ preheader: `You now have ${count}.` },
+	);
+}

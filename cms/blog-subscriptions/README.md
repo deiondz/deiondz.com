@@ -64,6 +64,10 @@ a known launch risk. See
   and valid for 24 hours. Visiting a link does not change state; confirmation
   requires a POST. Resubscribing requires a new confirmation and invalidates
   earlier unsubscribe links.
+- When someone confirms, a notice with their address and the active subscriber
+  count is queued to `BLOG_SUBSCRIPTIONS_NOTIFY_TO` (defaults to the reply-to
+  address; set it empty to turn notices off). Bounces of these notices never
+  suppress the subscriber.
 - On first installation, existing published documents are seeded as handled.
   New first publications transactionally create an immutable content snapshot
   and jobs for subscribers active at publication. Edits and repeated publish

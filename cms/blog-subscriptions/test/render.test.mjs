@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { renderArticleEmail } from "../render.mjs";
+import { renderArticleEmail, renderSubscriberNotice } from "../render.mjs";
 
 const options = {
 	siteUrl: "https://deiondz.com",
@@ -75,4 +75,16 @@ test("empty articles still link to the website without rendering missing content
 	const result = renderArticleEmail({ title: "Empty", slug: "empty" }, options);
 	assert.match(result.textbody, /https:\/\/deiondz.com\/blog\/empty\//);
 	assert.doesNotMatch(result.htmlbody, /undefined|null/);
+});
+
+test("owner notices name the escaped subscriber and the active count", () => {
+	const result = renderSubscriberNotice(
+		{ email: "a<b>@example.com", confirmedAt: "2026-10-20T04:30:00.000Z" },
+		{ total: 3 },
+	);
+	assert.equal(result.subject, "New blog subscriber: a<b>@example.com");
+	assert.match(result.htmlbody, /a&lt;b&gt;@example\.com/);
+	assert.doesNotMatch(result.htmlbody, /a<b>@/);
+	assert.match(result.textbody, /You now have 3 active subscribers\./);
+	assert.match(result.textbody, /10:00/i);
 });
