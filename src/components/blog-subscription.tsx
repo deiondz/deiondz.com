@@ -39,7 +39,7 @@ export function BlogSubscription() {
 	return (
 		<section aria-labelledby={`${id}-heading`} className="blog-subscription">
 			<h2 id={`${id}-heading`}>Get new posts by email.</h2>
-			<p>Full posts, straight to your inbox. Unsubscribe anytime.</p>
+			<p>A short preview of each new post. Unsubscribe anytime.</p>
 			{!success && (
 				<form aria-busy={pending} onSubmit={onSubmit}>
 					<label className="sr-only" htmlFor={`${id}-email`}>

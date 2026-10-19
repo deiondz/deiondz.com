@@ -23,7 +23,7 @@ The blog includes search, category filters, pagination, dates, reading time,
 article sharing, metadata, JSON-LD, `/blog/feed.xml`, and `/sitemap.xml`.
 
 Email signup appears above the blog list and below published articles. Readers
-confirm their address before receiving full new posts. The Strapi extension
+confirm their address before receiving new-post excerpts with a link to read more. The Strapi extension
 handles subscribers, first-publication detection, delivery jobs, and ZeptoMail.
 See [`cms/blog-subscriptions/README.md`](cms/blog-subscriptions/README.md) for
 installation, secrets, webhook setup, tests, and rollback. Sending must be

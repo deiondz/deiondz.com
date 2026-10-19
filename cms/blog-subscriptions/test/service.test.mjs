@@ -8,6 +8,7 @@ const query = (name) => strapi.db.query(UIDS[name]);
 const article = (suffix = "post") => ({
 	documentId: `document-${suffix}`,
 	title: "Full article",
+	excerpt: "A short preview of the new post.",
 	slug: suffix,
 	publishedAt: new Date(time).toISOString(),
 	content: [
@@ -192,7 +193,8 @@ test("first publication snapshots content and recipients; edits and republicatio
 	await service.tick();
 	const posts = sent.filter((mail) => mail.subject === "Full article");
 	assert.equal(posts.length, 1);
-	assert.match(posts[0].textbody, /Entire article body/);
+	assert.match(posts[0].textbody, /A short preview of the new post\./);
+	assert.doesNotMatch(posts[0].textbody, /Entire article body/);
 	assert.equal(posts[0].to[0].email_address.address, "reader@example.com");
 	assert.equal(posts[0].track_opens, false);
 	assert.equal(posts[0].track_clicks, false);

@@ -31,7 +31,7 @@ The homepage and RSS feed are unchanged.
    proxy ranges, then overwrite `X-Real-IP` for signup rate limiting.
 7. Verify the `deiondz.com` sending domain, DKIM/SPF, sender, account approval,
    credit balance, and sending limits in ZeptoMail. Use an owned test address
-   for the confirmation and full-post inbox checks.
+   for the confirmation and new-post excerpt inbox checks.
 8. In the ZeptoMail agent, configure the webhook at
    `https://strapi.deiondz.com/api/blog-subscriptions/webhook` for Delivered,
    Hard Bounce, Soft Bounce, and Feedback Loop. Set its Authorization header
@@ -87,10 +87,11 @@ a known launch risk. See
 - Authenticated hard-bounce and complaint events suppress the address, cancel
   pending jobs, and mark the affected job failed. Repeated or late delivery
   events cannot reactivate a subscriber or undo a failure.
-- Full email content uses escaped text, allowlisted URLs, absolute image URLs,
-  inline email styles, and a plain-text alternative. Interactive embeds become
-  links. Open and click tracking are disabled. Some clients may clip long
-  messages; the full website link is always present.
+- Post emails include the title, excerpt, and a link to read the full post.
+  Without an excerpt or description, the opening text is shortened to 180
+  characters. Article bodies, images, and embeds stay on the website. Emails
+  use escaped text, inline styles, and a plain-text alternative. Open and click
+  tracking are disabled.
 
 ## Tests
 

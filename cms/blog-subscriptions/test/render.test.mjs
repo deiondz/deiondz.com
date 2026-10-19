@@ -2,119 +2,77 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { renderArticleEmail } from "../render.mjs";
 
-test("full articles preserve text and formatting while removing unsafe links and embeds", () => {
+const options = {
+	siteUrl: "https://deiondz.com",
+	cmsUrl: "https://strapi.deiondz.com",
+	unsubscribeUrl: "https://deiondz.com/blog/unsubscribe/?token=test",
+};
+const paragraph = (text) => ({
+	type: "paragraph",
+	children: [{ type: "text", text }],
+});
+
+test("post emails contain the title, escaped excerpt and website link without the full article", () => {
 	const result = renderArticleEmail(
 		{
 			title: "A <new> post",
 			slug: "new-post",
+			excerpt: "A short <preview> & introduction.",
+			coverImage: { url: "/uploads/cover.jpg" },
 			content: [
-				{
-					type: "heading",
-					level: 2,
-					children: [{ type: "text", text: "Heading" }],
-				},
-				{
-					type: "paragraph",
-					children: [
-						{ type: "text", text: "Complete body", bold: true },
-						{
-							type: "link",
-							url: "javascript:alert(1)",
-							children: [{ type: "text", text: "unsafe" }],
-						},
-						{
-							type: "link",
-							url: "https://youtu.be/abcdefghijk",
-							children: [{ type: "text", text: "Watch video" }],
-						},
-					],
-				},
-				{
-					type: "image",
-					image: {
-						url: "/uploads/photo.jpg",
-						alternativeText: "A photo",
-						caption: "Caption",
-					},
-				},
-				{
-					type: "code",
-					children: [{ type: "text", text: "if (a < b) {\n  run();\n}" }],
-				},
-				{
-					type: "list",
-					format: "ordered",
-					children: [
-						{ type: "list-item", children: [{ type: "text", text: "First" }] },
-					],
-				},
+				paragraph("Full article body stays on the website."),
+				{ type: "image", image: { url: "/uploads/photo.jpg" } },
+				{ type: "code", children: [{ type: "text", text: "run();" }] },
+				paragraph("https://youtu.be/abcdefghijk"),
 			],
 		},
-		{
-			siteUrl: "https://deiondz.com",
-			cmsUrl: "https://strapi.deiondz.com",
-			unsubscribeUrl: "https://deiondz.com/blog/unsubscribe/?token=test",
-		},
+		options,
 	);
 	assert.match(result.htmlbody, /A &lt;new&gt; post/);
-	assert.match(result.htmlbody, /<strong>Complete body<\/strong>/);
+	assert.match(result.htmlbody, /A short &lt;preview&gt; &amp; introduction\./);
 	assert.match(
 		result.htmlbody,
-		/https:\/\/strapi.deiondz.com\/uploads\/photo.jpg/,
+		/href="https:\/\/deiondz.com\/blog\/new-post\/"/,
 	);
-	assert.match(result.htmlbody, /<ol/);
-	assert.doesNotMatch(result.htmlbody, /javascript:|<iframe|<script/);
-	assert.match(result.textbody, /Complete body/);
-	assert.match(result.textbody, /if \(a < b\) \{\n {2}run\(\);\n\}/);
-	assert.match(result.textbody, /https:\/\/youtu.be\/abcdefghijk/);
+	assert.match(result.htmlbody, /Read the full post/);
+	assert.match(result.textbody, /A short <preview> & introduction\./);
+	assert.match(result.textbody, /https:\/\/deiondz.com\/blog\/new-post\//);
 	assert.match(result.textbody, /Unsubscribe: https:/);
+	assert.match(result.htmlbody, /unsubscribe\/\?token=test/);
+	for (const body of [result.htmlbody, result.textbody]) {
+		assert.doesNotMatch(body, /Full article body|uploads\/|run\(\)|youtu\.be/);
+	}
 });
 
-test("pasted media URLs become links without nesting anchors or changing code", () => {
-	const result = renderArticleEmail(
-		{
-			title: "Media",
-			slug: "media",
-			content: [
-				{
-					type: "paragraph",
-					children: [
-						{ type: "text", text: "Watch https://youtu.be/abcdefghijk?t=20." },
-					],
-				},
-				{
-					type: "paragraph",
-					children: [
-						{
-							type: "link",
-							url: "https://open.spotify.com/track/123",
-							children: [
-								{ type: "text", text: "https://open.spotify.com/track/123" },
-							],
-						},
-					],
-				},
-				{
-					type: "paragraph",
-					children: [
-						{ type: "text", text: "https://example.com/code", code: true },
-					],
-				},
-			],
-		},
-		{
-			siteUrl: "https://deiondz.com",
-			cmsUrl: "https://strapi.deiondz.com",
-			unsubscribeUrl: "https://deiondz.com/blog/",
-		},
-	);
-	assert.match(result.htmlbody, /href="https:\/\/youtu.be\/abcdefghijk\?t=20"/);
-	assert.equal(
-		(
-			result.htmlbody.match(/href="https:\/\/open.spotify.com\/track\/123"/g) ||
-			[]
-		).length,
-		1,
-	);
-	assert.doesNotMatch(result.htmlbody, /href="https:\/\/example.com\/code"/);
+test("missing or blank excerpts fall back to a short plain-text preview", () => {
+	for (const excerpt of [undefined, " \n\t "]) {
+		const result = renderArticleEmail(
+			{
+				title: "Fallback",
+				slug: "fallback",
+				excerpt,
+				content: [
+					paragraph("  First\n paragraph with <safe> text. "),
+					paragraph("More words to preview. ".repeat(30)),
+					paragraph("Article ending must stay on the website."),
+				],
+			},
+			options,
+		);
+		const preview = result.textbody.split("\n\n")[2];
+		assert.ok(
+			preview.startsWith("First paragraph with <safe> text. More words"),
+		);
+		assert.ok(preview.length <= 181);
+		assert.ok(preview.endsWith("…"));
+		assert.match(result.htmlbody, /First paragraph with &lt;safe&gt; text/);
+		assert.doesNotMatch(result.textbody, /Article ending/);
+		assert.doesNotMatch(result.htmlbody, /Article ending/);
+	}
+});
+
+test("empty articles still link to the website without rendering missing content", () => {
+	const result = renderArticleEmail({ title: "Empty", slug: "empty" }, options);
+	assert.match(result.textbody, /https:\/\/deiondz.com\/blog\/empty\//);
+	assert.doesNotMatch(result.htmlbody, /undefined|null/);
 });
