@@ -52,9 +52,27 @@ export function renderArticleEmail(
 				.join("\n");
 		return `${children}${["paragraph", "heading", "quote", "code", "list-item", "list"].includes(node.type) ? "\n\n" : ""}`;
 	};
-	const htmlNode = (node) => {
+	const htmlNode = (node, insideLink = false) => {
 		if (node.type === "text") {
 			let text = escapeHtml(node.text).replace(/\n/g, "<br>");
+			if (!node.code && !insideLink) {
+				text = String(node.text || "")
+					.split(/((?:https?:\/\/|www\.)[^\s<>]+)/g)
+					.map((part) => {
+						const label = part.replace(/[.,!?;:)\]}]+$/, "");
+						const url = /^(?:https?:\/\/|www\.)/.test(label)
+							? safeUrl(
+									label.startsWith("www.") ? `https://${label}` : label,
+									articleUrl,
+								)
+							: null;
+						return url
+							? `<a style="color:#18181b;text-decoration:underline" href="${escapeHtml(url)}">${escapeHtml(label)}</a>${escapeHtml(part.slice(label.length))}`
+							: escapeHtml(part);
+					})
+					.join("")
+					.replace(/\n/g, "<br>");
+			}
 			for (const [flag, tag] of [
 				["bold", "strong"],
 				["italic", "em"],
@@ -65,7 +83,9 @@ export function renderArticleEmail(
 				if (node[flag]) text = `<${tag}>${text}</${tag}>`;
 			return text;
 		}
-		const children = (node.children || []).map(htmlNode).join("");
+		const children = (node.children || [])
+			.map((child) => htmlNode(child, insideLink || node.type === "link"))
+			.join("");
 		switch (node.type) {
 			case "heading": {
 				const level = Math.min(6, Math.max(2, Number(node.level) || 2));
@@ -105,7 +125,7 @@ export function renderArticleEmail(
 		: "";
 	return emailShell(
 		article.title,
-		`<h1 style="font-size:28px;line-height:1.3">${escapeHtml(article.title)}</h1><p><a href="${escapeHtml(articleUrl)}">Read on the website</a></p>${cover}${content.map(htmlNode).join("")}<hr style="border:0;border-top:1px solid #e4e4e7;margin:32px 0"><p style="font-size:13px;color:#71717a">You subscribed to new posts on deiondz.com. <a href="${escapeHtml(unsubscribeUrl)}">Unsubscribe</a></p>`,
+		`<h1 style="font-size:28px;line-height:1.3">${escapeHtml(article.title)}</h1><p><a href="${escapeHtml(articleUrl)}">Read on the website</a></p>${cover}${content.map((node) => htmlNode(node)).join("")}<hr style="border:0;border-top:1px solid #e4e4e7;margin:32px 0"><p style="font-size:13px;color:#71717a">You subscribed to new posts on deiondz.com. <a href="${escapeHtml(unsubscribeUrl)}">Unsubscribe</a></p>`,
 		`${article.title}\n\nRead on the website: ${articleUrl}\n\n${content.map(textNode).join("")}\nUnsubscribe: ${unsubscribeUrl}`,
 	);
 }

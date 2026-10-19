@@ -69,3 +69,52 @@ test("full articles preserve text and formatting while removing unsafe links and
 	assert.match(result.textbody, /https:\/\/youtu.be\/abcdefghijk/);
 	assert.match(result.textbody, /Unsubscribe: https:/);
 });
+
+test("pasted media URLs become links without nesting anchors or changing code", () => {
+	const result = renderArticleEmail(
+		{
+			title: "Media",
+			slug: "media",
+			content: [
+				{
+					type: "paragraph",
+					children: [
+						{ type: "text", text: "Watch https://youtu.be/abcdefghijk?t=20." },
+					],
+				},
+				{
+					type: "paragraph",
+					children: [
+						{
+							type: "link",
+							url: "https://open.spotify.com/track/123",
+							children: [
+								{ type: "text", text: "https://open.spotify.com/track/123" },
+							],
+						},
+					],
+				},
+				{
+					type: "paragraph",
+					children: [
+						{ type: "text", text: "https://example.com/code", code: true },
+					],
+				},
+			],
+		},
+		{
+			siteUrl: "https://deiondz.com",
+			cmsUrl: "https://strapi.deiondz.com",
+			unsubscribeUrl: "https://deiondz.com/blog/",
+		},
+	);
+	assert.match(result.htmlbody, /href="https:\/\/youtu.be\/abcdefghijk\?t=20"/);
+	assert.equal(
+		(
+			result.htmlbody.match(/href="https:\/\/open.spotify.com\/track\/123"/g) ||
+			[]
+		).length,
+		1,
+	);
+	assert.doesNotMatch(result.htmlbody, /href="https:\/\/example.com\/code"/);
+});
