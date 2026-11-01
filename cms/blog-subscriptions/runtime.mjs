@@ -125,6 +125,20 @@ export async function bootstrap({ strapi }) {
 				throw problem(413, "Request too large.");
 			if (action === "subscribe")
 				ctx.body = await service.subscribe(body.email, body.ip || "unknown");
+			else if (action === "reactions")
+				ctx.body = await service.reactions({
+					slug: body.slug,
+					reader: body.reader,
+					subscriberToken: body.subscriberToken,
+				});
+			else if (action === "react")
+				ctx.body = await service.react({
+					slug: body.slug,
+					reaction: body.reaction ?? null,
+					reader: body.reader,
+					subscriberToken: body.subscriberToken,
+					ip: body.ip || "unknown",
+				});
 			else if (action === "webhook") {
 				const values = Object.values(body);
 				const payload = body.event_name

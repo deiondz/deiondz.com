@@ -8,3 +8,13 @@ export function subscriptionRequest(
 		production: boolean;
 	},
 ): Promise<Response>;
+
+export function allowedOrigins(
+	request: Request,
+	config: { siteUrl: string; production: boolean },
+): Set<string>;
+
+export function readSmallBody(
+	request: Request,
+	limit?: number,
+): Promise<Record<string, unknown> | Response>;

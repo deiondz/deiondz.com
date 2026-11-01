@@ -3,6 +3,7 @@ import {
 	renderConfirmation,
 	renderSubscriberNotice,
 } from "./render.mjs";
+import { REACTIONS } from "./schemas.mjs";
 import { hash, makeToken, normalizeEmail, readToken } from "./security.mjs";
 
 export const UIDS = {
@@ -10,7 +11,10 @@ export const UIDS = {
 	publication: "api::blog-publication.blog-publication",
 	job: "api::blog-delivery.blog-delivery",
 	limit: "api::blog-rate-limit.blog-rate-limit",
+	reaction: "api::blog-reaction.blog-reaction",
 };
+const READER_ID = /^[A-Za-z0-9_-]{43}$/;
+const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 export function problem(status, message) {
 	return Object.assign(new Error(message), { status });
 }
@@ -35,6 +39,24 @@ export function createService(strapi, options) {
 			},
 			settings.signingSecret,
 		);
+	// Call inside a transaction. No raw IP addresses are retained; limits survive restarts.
+	async function consume(scope, ip, max, message) {
+		const timestamp = now();
+		const bucket = hash(
+			`${settings.signingSecret}:${scope}:${ip}:${Math.floor(timestamp / 3_600_000)}`,
+		);
+		const limit = await db("limit").findOne({ where: { bucket } });
+		if (limit?.requests >= max) throw problem(429, message);
+		if (limit)
+			await db("limit").update({
+				where: { id: limit.id },
+				data: { requests: limit.requests + 1 },
+			});
+		else
+			await db("limit").create({
+				data: { bucket, requests: 1, expiresAt: date(timestamp + 3_600_000) },
+			});
+	}
 	const link = (action, token) =>
 		`${settings.siteUrl}/blog/${action}/?token=${encodeURIComponent(token)}`;
 	async function subscribe(value, ip) {
@@ -47,22 +69,12 @@ export function createService(strapi, options) {
 		if (!email) throw problem(400, "Enter a valid email address.");
 		const timestamp = now();
 		await strapi.db.transaction(async () => {
-			// No raw IP addresses are retained. Limits survive application restarts.
-			const bucket = hash(
-				`${settings.signingSecret}:ip:${ip}:${Math.floor(timestamp / 3_600_000)}`,
+			await consume(
+				"ip",
+				ip,
+				5,
+				"Too many requests. Please try again in an hour.",
 			);
-			const limit = await db("limit").findOne({ where: { bucket } });
-			if (limit?.requests >= 5)
-				throw problem(429, "Too many requests. Please try again in an hour.");
-			if (limit)
-				await db("limit").update({
-					where: { id: limit.id },
-					data: { requests: limit.requests + 1 },
-				});
-			else
-				await db("limit").create({
-					data: { bucket, requests: 1, expiresAt: date(timestamp + 3_600_000) },
-				});
 			let subscriber = await db("subscriber").findOne({ where: { email } });
 			if (subscriber?.state === "active" || subscriber?.state === "suppressed")
 				return;
@@ -169,6 +181,107 @@ export function createService(strapi, options) {
 			message: "You’re unsubscribed. You won’t receive new posts by email.",
 		};
 	}
+	async function reactionContext({ slug, reader, subscriberToken }) {
+		if (!settings.signingSecret || settings.signingSecret.length < 32)
+			throw problem(503, "Reactions aren’t available right now.");
+		if (typeof slug !== "string" || slug.length > 200 || !SLUG.test(slug))
+			throw problem(400, "This post isn’t available.");
+		const article = await strapi
+			.documents("api::article.article")
+			.findFirst({ filters: { slug }, status: "published", fields: ["slug"] });
+		if (!article) throw problem(404, "This post isn’t available.");
+		let subscriber = null;
+		if (subscriberToken) {
+			const decoded = readToken(
+				subscriberToken,
+				"react",
+				settings.signingSecret,
+			);
+			const record =
+				decoded &&
+				(await db("subscriber").findOne({ where: { id: decoded.id } }));
+			if (record?.version === decoded?.version && record?.state === "active")
+				subscriber = record;
+		}
+		// Hash the browser ID so a database leak can't be replayed as a cookie.
+		const guest =
+			typeof reader === "string" && READER_ID.test(reader)
+				? `g:${hash(`${settings.signingSecret}:reader:${reader}`)}`
+				: null;
+		return {
+			documentId: article.documentId,
+			reactor: subscriber ? `s:${subscriber.id}` : guest,
+			guest,
+			subscriber,
+			// Tells the proxy whether to keep or clear its subscriber cookie.
+			subscriberValid: subscriberToken ? Boolean(subscriber) : undefined,
+		};
+	}
+	async function reactionSummary(context) {
+		const counts = {};
+		for (const reaction of REACTIONS)
+			counts[reaction] = await db("reaction").count({
+				where: { articleDocumentId: context.documentId, reaction },
+			});
+		const mine = context.reactor
+			? (
+					await db("reaction").findOne({
+						where: { key: `${context.documentId}:${context.reactor}` },
+					})
+				)?.reaction || null
+			: null;
+		return {
+			counts,
+			mine,
+			...(context.subscriberValid === undefined
+				? {}
+				: { subscriber: context.subscriberValid }),
+		};
+	}
+	async function reactions(input) {
+		return reactionSummary(await reactionContext(input));
+	}
+	async function react({ reaction, ip, ...input }) {
+		if (reaction !== null && !REACTIONS.includes(reaction))
+			throw problem(400, "Choose a reaction.");
+		return strapi.db.transaction(async () => {
+			const context = await reactionContext(input);
+			if (!context.reactor)
+				throw problem(400, "Couldn’t save your reaction. Please try again.");
+			await consume(
+				"react-ip",
+				ip || "unknown",
+				60,
+				"Too many reactions. Please try again later.",
+			);
+			// A subscriber's reaction replaces any guest reaction from the same browser.
+			if (context.subscriber && context.guest)
+				await db("reaction").deleteMany({
+					where: { key: `${context.documentId}:${context.guest}` },
+				});
+			const key = `${context.documentId}:${context.reactor}`;
+			const existing = await db("reaction").findOne({ where: { key } });
+			if (reaction === null) {
+				if (existing)
+					await db("reaction").delete({ where: { id: existing.id } });
+			} else if (existing)
+				await db("reaction").update({
+					where: { id: existing.id },
+					data: { reaction },
+				});
+			else
+				await db("reaction").create({
+					data: {
+						key,
+						articleDocumentId: context.documentId,
+						reaction,
+						reactorKind: context.subscriber ? "subscriber" : "guest",
+						subscriberId: context.subscriber?.id ?? null,
+					},
+				});
+			return reactionSummary(context);
+		});
+	}
 	async function recordPublication(article, seeded = false) {
 		if (!article?.documentId || !article.publishedAt) return;
 		await strapi.db.transaction(async () => {
@@ -261,9 +374,24 @@ export function createService(strapi, options) {
 				return update({ state: "cancelled" });
 			if (!(await visible(publication.snapshot)))
 				return update({ nextAttemptAt: date(now() + 15_000) });
+			const reactToken = encodeURIComponent(
+				makeToken(
+					"react",
+					{ id: subscriber.id, version: subscriber.version },
+					settings.signingSecret,
+				),
+			);
+			// The token sits in the fragment so it never reaches server logs or referrers.
+			const articleUrl = `${settings.siteUrl}/blog/${encodeURIComponent(publication.snapshot.slug)}/`;
 			mail = renderArticleEmail(publication.snapshot, {
 				...settings,
 				unsubscribeUrl,
+				reactionUrls: Object.fromEntries(
+					REACTIONS.map((reaction) => [
+						reaction,
+						`${articleUrl}#react=${reaction}&token=${reactToken}`,
+					]),
+				),
 			});
 		}
 		// Persist before network I/O. A crash or ambiguous response is never silently retried.
@@ -423,6 +551,8 @@ export function createService(strapi, options) {
 		subscribe,
 		confirm,
 		unsubscribe,
+		reactions,
+		react,
 		recordPublication,
 		cancelPublication,
 		recover,

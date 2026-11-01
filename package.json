@@ -18,7 +18,7 @@
 		"setup:hooks": "node scripts/install-hooks.mjs",
 		"start": "next start",
 		"typecheck": "tsc --noEmit",
-		"test:subscriptions": "node --test scripts/subscription-proxy.test.mjs cms/blog-subscriptions/test/render.test.mjs cms/blog-subscriptions/test/security.test.mjs cms/blog-subscriptions/test/transport.test.mjs"
+		"test:subscriptions": "node --test scripts/subscription-proxy.test.mjs scripts/reaction-proxy.test.mjs cms/blog-subscriptions/test/render.test.mjs cms/blog-subscriptions/test/security.test.mjs cms/blog-subscriptions/test/transport.test.mjs"
 	},
 	"dependencies": {
 		"@strapi/blocks-react-renderer": "1.0.2",

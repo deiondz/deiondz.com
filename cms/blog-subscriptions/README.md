@@ -97,6 +97,30 @@ a known launch risk. See
   use escaped text, inline styles, and a plain-text alternative. Open and click
   tracking are disabled.
 
+## Reactions
+
+- Every published post ends with a "Leave a reaction" row of five stickers: like, love,
+  fire, insightful, and celebrate. The artwork is in `public/blog/reactions/`. The site
+  uses the `.webp` files and emails use the `.png` files. Each reader gets one reaction
+  per post. Picking another reaction replaces it, and picking the same one again removes it.
+- Next.js proxies `GET`/`POST /api/blog-reactions/` to the internal `reactions` and
+  `react` actions. Writes require the site origin and are limited to 60 per IP per
+  hour, using the same hashed rate-limit table as signups. Unknown or unpublished slugs
+  return 404.
+- **Guests** are identified by a random HttpOnly `blog_reader` cookie, scoped to
+  `/api/blog-reactions`. Only a keyed hash of it is stored. Clearing cookies lets a
+  guest react again, which is an accepted tradeoff for having no accounts.
+- **Subscribers:** new-post emails include one-click reaction links. The signed
+  subscriber token is in the URL fragment, so it never reaches server logs. The article
+  page applies the chosen reaction when it loads. That's low stakes, and the reader can
+  change it. The token is then kept in an HttpOnly `blog_subscriber` cookie, so later
+  reactions count once per subscriber across browsers. A subscriber reaction replaces
+  any guest reaction from the same browser. The token stops working after an
+  unsubscribe or resubscribe, and the browser then reacts as a guest again.
+- Reactions don't depend on `BLOG_SUBSCRIPTIONS_ENABLED`. They need only the existing
+  internal and signing secrets. They are stored in the `blog-reaction` collection, which
+  has no public CRUD routes.
+
 ## Tests
 
 ```sh

@@ -27,8 +27,38 @@ export function emailShell(
 	};
 }
 
-export function renderArticleEmail(article, { siteUrl, unsubscribeUrl }) {
+const REACTION_LABELS = {
+	like: ["👍", "Like"],
+	love: ["❤️", "Love"],
+	fire: ["🔥", "Fire"],
+	idea: ["💡", "Insightful"],
+	party: ["🎉", "Celebrate"],
+};
+
+function renderReactions(reactionUrls, siteUrl) {
+	const entries = Object.entries(reactionUrls || {}).filter(
+		([key, href]) => REACTION_LABELS[key] && typeof href === "string",
+	);
+	if (!entries.length) return { html: "", text: "" };
+	const cells = entries
+		.map(([key, href]) => {
+			const [emoji, label] = REACTION_LABELS[key];
+			const image = new URL(`/blog/reactions/${key}.png`, siteUrl).href;
+			return `<td style="padding:0 10px 0 0"><a href="${escapeHtml(href)}" title="${label}" style="display:inline-block;text-decoration:none;font:15px/1 ${font};color:#18181b"><img src="${escapeHtml(image)}" width="36" height="36" alt="${emoji} ${label}" style="display:block;border:0;width:36px;height:36px"></a></td>`;
+		})
+		.join("");
+	return {
+		html: `<p style="margin:32px 0 10px;font-size:14px;line-height:1.4;color:${muted}">How did this post land?</p><table role="presentation" cellpadding="0" cellspacing="0"><tr>${cells}</tr></table>`,
+		text: `How did this post land?\n${entries.map(([key, href]) => `${REACTION_LABELS[key].join(" ")}: ${href}`).join("\n")}\n\n`,
+	};
+}
+
+export function renderArticleEmail(
+	article,
+	{ siteUrl, unsubscribeUrl, reactionUrls },
+) {
 	const articleUrl = new URL(`/blog/${article.slug}/`, siteUrl).href;
+	const reactions = renderReactions(reactionUrls, siteUrl);
 	const textNode = (node) => {
 		if (node.type === "text") return node.text || "";
 		const children = (node.children || []).map(textNode).join("");
@@ -53,8 +83,8 @@ export function renderArticleEmail(article, { siteUrl, unsubscribeUrl }) {
 		: "";
 	return emailShell(
 		article.title,
-		`<p style="margin:0 0 12px;font-size:13px;line-height:1.4;color:${muted}">New post${date ? ` · ${escapeHtml(date)}` : ""}</p><h1 style="margin:0 0 16px;font:700 30px/1.25 ${font};color:#18181b;letter-spacing:-0.01em">${escapeHtml(article.title)}</h1>${excerpt ? `<p style="margin:0 0 28px;font-size:18px;line-height:1.6;color:#52525b">${escapeHtml(excerpt)}</p>` : ""}${button(articleUrl, "Read the full post")}`,
-		`${article.title}\n\n${excerpt ? `${excerpt}\n\n` : ""}Read the full post: ${articleUrl}\n\nUnsubscribe: ${unsubscribeUrl}`,
+		`<p style="margin:0 0 12px;font-size:13px;line-height:1.4;color:${muted}">New post${date ? ` · ${escapeHtml(date)}` : ""}</p><h1 style="margin:0 0 16px;font:700 30px/1.25 ${font};color:#18181b;letter-spacing:-0.01em">${escapeHtml(article.title)}</h1>${excerpt ? `<p style="margin:0 0 28px;font-size:18px;line-height:1.6;color:#52525b">${escapeHtml(excerpt)}</p>` : ""}${button(articleUrl, "Read the full post")}${reactions.html}`,
+		`${article.title}\n\n${excerpt ? `${excerpt}\n\n` : ""}Read the full post: ${articleUrl}\n\n${reactions.text}Unsubscribe: ${unsubscribeUrl}`,
 		{
 			preheader: excerpt,
 			footer: `You’re getting this because you subscribed to new posts on deiondz.com.<br><a href="${escapeHtml(unsubscribeUrl)}" style="color:${muted};text-decoration:underline">Unsubscribe</a>`,
