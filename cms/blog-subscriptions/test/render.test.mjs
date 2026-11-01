@@ -88,3 +88,33 @@ test("owner notices name the escaped subscriber and the active count", () => {
 	assert.match(result.textbody, /You now have 3 active subscribers\./);
 	assert.match(result.textbody, /10:00/i);
 });
+
+test("post emails link reaction stickers only when reaction links are provided", () => {
+	const post = { title: "Reactions", slug: "reactions", excerpt: "Preview." };
+	const plain = renderArticleEmail(post, options);
+	assert.doesNotMatch(plain.htmlbody, /How did this post land/);
+	assert.doesNotMatch(plain.textbody, /How did this post land/);
+	const result = renderArticleEmail(post, {
+		...options,
+		reactionUrls: {
+			love: 'https://deiondz.com/blog/reactions/#react=love&token=a"b',
+			fire: "https://deiondz.com/blog/reactions/#react=fire&token=ab",
+			unknown: "https://attacker.example/",
+		},
+	});
+	assert.match(result.htmlbody, /How did this post land\?/);
+	assert.match(result.htmlbody, /#react=love&amp;token=a&quot;b/);
+	assert.match(
+		result.htmlbody,
+		/src="https:\/\/deiondz.com\/blog\/reactions\/love\.png"[^>]*alt="❤️ Love"/,
+	);
+	assert.doesNotMatch(result.htmlbody, /attacker\.example/);
+	assert.match(
+		result.textbody,
+		/🔥 Fire: https:\/\/deiondz.com\/blog\/reactions\/#react=fire&token=ab\n/,
+	);
+	assert.ok(
+		result.textbody.indexOf("How did this post land") <
+			result.textbody.indexOf("Unsubscribe:"),
+	);
+});

@@ -4,10 +4,7 @@ const response = (message, status = 200) =>
 		{ status, headers: { "Cache-Control": "no-store" } },
 	);
 
-export async function subscriptionRequest(request, action, config) {
-	if (!["subscribe", "confirm", "unsubscribe"].includes(action))
-		return response("Not found.", 404);
-	const origin = request.headers.get("origin");
+export function allowedOrigins(request, config) {
 	const allowed = new Set([config.siteUrl]);
 	if (!config.production) {
 		const url = new URL(request.url);
@@ -15,10 +12,11 @@ export async function subscriptionRequest(request, action, config) {
 		for (const host of ["localhost", "127.0.0.1", "[::1]"])
 			allowed.add(`http://${host}${url.port ? `:${url.port}` : ""}`);
 	}
-	// Mailbox providers POST one-click unsubscribe without an Origin header.
-	if (action !== "unsubscribe" && (!origin || !allowed.has(origin)))
-		return response("Invalid origin.", 403);
-	if (origin && !allowed.has(origin)) return response("Invalid origin.", 403);
+	return allowed;
+}
+
+/** Reads a small JSON or form body. Returns an object, or a Response on failure. */
+export async function readSmallBody(request, limit = 4096) {
 	const reader = request.body?.getReader();
 	let size = 0,
 		text = "";
@@ -28,7 +26,7 @@ export async function subscriptionRequest(request, action, config) {
 			const { done, value } = await reader.read();
 			if (done) break;
 			size += value.length;
-			if (size > 4096) {
+			if (size > limit) {
 				await reader.cancel();
 				return response("Request too large.", 413);
 			}
@@ -36,16 +34,31 @@ export async function subscriptionRequest(request, action, config) {
 		}
 		text += decoder.decode();
 	}
-	let body;
 	try {
-		body = request.headers.get("content-type")?.includes("application/json")
+		const body = request.headers
+			.get("content-type")
+			?.includes("application/json")
 			? JSON.parse(text || "{}")
 			: Object.fromEntries(new URLSearchParams(text));
 		if (!body || typeof body !== "object" || Array.isArray(body))
 			return response("Invalid request.", 400);
+		return body;
 	} catch {
 		return response("Invalid request.", 400);
 	}
+}
+
+export async function subscriptionRequest(request, action, config) {
+	if (!["subscribe", "confirm", "unsubscribe"].includes(action))
+		return response("Not found.", 404);
+	const origin = request.headers.get("origin");
+	const allowed = allowedOrigins(request, config);
+	// Mailbox providers POST one-click unsubscribe without an Origin header.
+	if (action !== "unsubscribe" && (!origin || !allowed.has(origin)))
+		return response("Invalid origin.", 403);
+	if (origin && !allowed.has(origin)) return response("Invalid origin.", 403);
+	const body = await readSmallBody(request);
+	if (body instanceof Response) return body;
 	const token = body.token || new URL(request.url).searchParams.get("token");
 	let payload;
 	if (action === "subscribe") {

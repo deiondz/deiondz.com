@@ -3,6 +3,15 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { schemas } from "./schemas.mjs";
 
+const ACTIONS = [
+	"subscribe",
+	"confirm",
+	"unsubscribe",
+	"webhook",
+	"reactions",
+	"react",
+];
+
 export async function install(appDir) {
 	const source = path.dirname(fileURLToPath(import.meta.url));
 	const target = path.resolve(appDir);
@@ -31,11 +40,11 @@ export async function install(appDir) {
 	await mkdir(controllers, { recursive: true });
 	await writeFile(
 		path.join(routes, "blog-subscriptions.js"),
-		`module.exports = { routes: [${["subscribe", "confirm", "unsubscribe", "webhook"].map((action) => `{ method: 'POST', path: '/blog-subscriptions/${action}', handler: 'blog-subscriptions.${action}', config: { auth: false } }`).join(",")} ] };\n`,
+		`module.exports = { routes: [${ACTIONS.map((action) => `{ method: 'POST', path: '/blog-subscriptions/${action}', handler: 'blog-subscriptions.${action}', config: { auth: false } }`).join(",")} ] };\n`,
 	);
 	await writeFile(
 		path.join(controllers, "blog-subscriptions.js"),
-		`module.exports = ({ strapi }) => Object.fromEntries(['subscribe','confirm','unsubscribe','webhook'].map(action => [action, ctx => strapi.blogSubscriptions.handle(action, ctx)]));\n`,
+		`module.exports = ({ strapi }) => Object.fromEntries(${JSON.stringify(ACTIONS)}.map(action => [action, ctx => strapi.blogSubscriptions.handle(action, ctx)]));\n`,
 	);
 	const index = path.join(target, "src/index.js");
 	let original = "module.exports = {};\n";

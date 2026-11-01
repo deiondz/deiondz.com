@@ -4,6 +4,7 @@ import { draftMode } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArticleBody } from "~/components/article-body";
+import { ArticleReactions } from "~/components/article-reactions";
 import { ArticleReadingProgress } from "~/components/article-reading-progress";
 import { BlogList } from "~/components/blog-list";
 import { BlogSubscription } from "~/components/blog-subscription";
@@ -192,6 +193,7 @@ export default async function BlogPage({ params }: Props) {
 				</ArticleReadingProgress>
 				<ShareArticle title={article.title} url={articleUrl(article.slug)} />
 				{!preview && <BlogSubscription />}
+				{!preview && <ArticleReactions slug={article.slug} />}
 			</article>
 		</>
 	);

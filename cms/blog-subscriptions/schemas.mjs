@@ -1,3 +1,4 @@
+export const REACTIONS = ["like", "love", "fire", "idea", "party"];
 const string = (extra = {}) => ({ type: "string", ...extra });
 const integer = (extra = {}) => ({ type: "integer", ...extra });
 const json = (extra = {}) => ({ type: "json", ...extra });
@@ -64,6 +65,14 @@ export const schemas = {
 			lastError: string(),
 		},
 	),
+	"blog-reaction": schema("blog-reaction", "blog-reactions", "Blog reaction", {
+		// `${articleDocumentId}:${reactor}` keeps one reaction per reader per post.
+		key: string({ unique: true, required: true, private: true }),
+		articleDocumentId: string({ required: true }),
+		reaction: enumeration(...REACTIONS),
+		reactorKind: enumeration("guest", "subscriber"),
+		subscriberId: integer(),
+	}),
 	"blog-rate-limit": schema(
 		"blog-rate-limit",
 		"blog-rate-limits",

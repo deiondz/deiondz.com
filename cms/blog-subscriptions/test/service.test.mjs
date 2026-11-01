@@ -26,7 +26,7 @@ after(async () => {
 	await fixture?.close();
 });
 beforeEach(async () => {
-	for (const name of ["job", "publication", "subscriber", "limit"])
+	for (const name of ["job", "publication", "subscriber", "limit", "reaction"])
 		await query(name).deleteMany({ where: {} });
 	sent = [];
 	time = Date.now();
@@ -152,6 +152,7 @@ test("subscriber collections have no public routes and custom actions require th
 			"blog-deliveries",
 			"blog-publications",
 			"blog-rate-limits",
+			"blog-reactions",
 		])
 			assert.equal((await fetch(`${base}/api/${name}`)).status, 404);
 		assert.equal(
@@ -383,4 +384,116 @@ test("turning owner notices off cancels queued notices and allows new confirmati
 		await query("job").count({ where: { kind: "notification" } }),
 		1,
 	);
+});
+
+const READER = "a".repeat(43);
+const OTHER_READER = "b".repeat(43);
+async function publishedArticle(slug = `reactions-${Date.now()}`) {
+	strapi.blogSubscriptions = service;
+	const documents = strapi.documents("api::article.article");
+	const draft = await documents.create({
+		data: { title: "Reaction post", slug, content: article().content },
+	});
+	await documents.publish({ documentId: draft.documentId });
+	return { slug, documentId: draft.documentId };
+}
+test("guests set, change and clear one reaction per post", async () => {
+	const { slug } = await publishedArticle();
+	let result = await service.react({ slug, reaction: "love", reader: READER });
+	assert.equal(result.mine, "love");
+	assert.equal(result.counts.love, 1);
+	result = await service.react({ slug, reaction: "fire", reader: READER });
+	assert.deepEqual(
+		{ mine: result.mine, love: result.counts.love, fire: result.counts.fire },
+		{ mine: "fire", love: 0, fire: 1 },
+	);
+	await service.react({ slug, reaction: "fire", reader: OTHER_READER });
+	result = await service.reactions({ slug, reader: READER });
+	assert.equal(result.counts.fire, 2);
+	result = await service.react({ slug, reaction: null, reader: READER });
+	assert.equal(result.mine, null);
+	assert.equal(result.counts.fire, 1);
+	const stored = await query("reaction").findMany({ where: {} });
+	assert.ok(stored.every((row) => !row.key.includes(OTHER_READER)));
+	assert.equal(
+		(await service.reactions({ slug })).mine,
+		null,
+		"anonymous reads never see a reaction",
+	);
+});
+
+test("reactions reject unpublished posts, unknown reactions and missing identities", async () => {
+	const { slug, documentId } = await publishedArticle();
+	await assert.rejects(
+		service.react({ slug: "missing-post", reaction: "like", reader: READER }),
+		{ status: 404 },
+	);
+	await assert.rejects(
+		service.react({ slug, reaction: "angry", reader: READER }),
+		{ status: 400 },
+	);
+	await assert.rejects(service.react({ slug, reaction: "like" }), {
+		status: 400,
+	});
+	await strapi.documents("api::article.article").unpublish({ documentId });
+	await assert.rejects(
+		service.react({ slug, reaction: "like", reader: READER }),
+		{ status: 404 },
+	);
+});
+
+test("subscriber email reactions count once, absorb guest reactions and expire on resubscribe", async () => {
+	const subscriber = await active();
+	const { slug } = await publishedArticle();
+	await service.tick();
+	const email = sent.find((mail) => mail.textbody.includes("How did this post land?"));
+	assert.ok(email, "article email includes reaction links");
+	const link = email.textbody.match(/Love: (https:[^s]+)/)[1];
+	const hash = new URLSearchParams(new URL(link).hash.slice(1));
+	assert.equal(hash.get("react"), "love");
+	const subscriberToken = hash.get("token");
+	assert.match(email.htmlbody, /blog/reactions/love.png/);
+
+	await service.react({ slug, reaction: "like", reader: READER });
+	let result = await service.react({
+		slug,
+		reaction: "love",
+		reader: READER,
+		subscriberToken,
+	});
+	assert.equal(result.subscriber, true);
+	assert.equal(result.mine, "love");
+	assert.equal(result.counts.like, 0, "guest reaction from the same browser is replaced");
+	result = await service.react({
+		slug,
+		reaction: "love",
+		reader: OTHER_READER,
+		subscriberToken,
+	});
+	assert.equal(result.counts.love, 1, "a subscriber counts once across browsers");
+	const row = await query("reaction").findOne({ where: { reactorKind: "subscriber" } });
+	assert.equal(row.subscriberId, subscriber.id);
+
+	await service.unsubscribe(
+		new URL(email.textbody.match(/Unsubscribe: (https:[^s]+)/)[1]).searchParams.get("token"),
+	);
+	result = await service.reactions({ slug, reader: READER, subscriberToken });
+	assert.equal(result.subscriber, false, "inactive subscribers fall back to guests");
+	assert.equal(result.mine, null);
+});
+
+test("reaction writes are rate limited per IP", async () => {
+	const { slug } = await publishedArticle();
+	for (let index = 0; index < 60; index++)
+		await service.react({
+			slug,
+			reaction: index % 2 ? "like" : null,
+			reader: READER,
+			ip: "reaction-rate",
+		});
+	await assert.rejects(
+		service.react({ slug, reaction: "like", reader: READER, ip: "reaction-rate" }),
+		{ status: 429 },
+	);
+	await service.react({ slug, reaction: "like", reader: READER, ip: "someone-else" });
 });
