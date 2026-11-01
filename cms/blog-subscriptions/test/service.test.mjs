@@ -446,13 +446,15 @@ test("subscriber email reactions count once, absorb guest reactions and expire o
 	const subscriber = await active();
 	const { slug } = await publishedArticle();
 	await service.tick();
-	const email = sent.find((mail) => mail.textbody.includes("How did this post land?"));
+	const email = sent.find((mail) =>
+		mail.textbody.includes("How did this post land?"),
+	);
 	assert.ok(email, "article email includes reaction links");
-	const link = email.textbody.match(/Love: (https:[^s]+)/)[1];
+	const link = email.textbody.match(/Love: (https:[^\s]+)/)[1];
 	const hash = new URLSearchParams(new URL(link).hash.slice(1));
 	assert.equal(hash.get("react"), "love");
 	const subscriberToken = hash.get("token");
-	assert.match(email.htmlbody, /blog/reactions/love.png/);
+	assert.match(email.htmlbody, /blog\/reactions\/love\.png/);
 
 	await service.react({ slug, reaction: "like", reader: READER });
 	let result = await service.react({
@@ -463,22 +465,38 @@ test("subscriber email reactions count once, absorb guest reactions and expire o
 	});
 	assert.equal(result.subscriber, true);
 	assert.equal(result.mine, "love");
-	assert.equal(result.counts.like, 0, "guest reaction from the same browser is replaced");
+	assert.equal(
+		result.counts.like,
+		0,
+		"guest reaction from the same browser is replaced",
+	);
 	result = await service.react({
 		slug,
 		reaction: "love",
 		reader: OTHER_READER,
 		subscriberToken,
 	});
-	assert.equal(result.counts.love, 1, "a subscriber counts once across browsers");
-	const row = await query("reaction").findOne({ where: { reactorKind: "subscriber" } });
+	assert.equal(
+		result.counts.love,
+		1,
+		"a subscriber counts once across browsers",
+	);
+	const row = await query("reaction").findOne({
+		where: { reactorKind: "subscriber" },
+	});
 	assert.equal(row.subscriberId, subscriber.id);
 
 	await service.unsubscribe(
-		new URL(email.textbody.match(/Unsubscribe: (https:[^s]+)/)[1]).searchParams.get("token"),
+		new URL(
+			email.textbody.match(/Unsubscribe: (https:[^\s]+)/)[1],
+		).searchParams.get("token"),
 	);
 	result = await service.reactions({ slug, reader: READER, subscriberToken });
-	assert.equal(result.subscriber, false, "inactive subscribers fall back to guests");
+	assert.equal(
+		result.subscriber,
+		false,
+		"inactive subscribers fall back to guests",
+	);
 	assert.equal(result.mine, null);
 });
 
@@ -492,8 +510,18 @@ test("reaction writes are rate limited per IP", async () => {
 			ip: "reaction-rate",
 		});
 	await assert.rejects(
-		service.react({ slug, reaction: "like", reader: READER, ip: "reaction-rate" }),
+		service.react({
+			slug,
+			reaction: "like",
+			reader: READER,
+			ip: "reaction-rate",
+		}),
 		{ status: 429 },
 	);
-	await service.react({ slug, reaction: "like", reader: READER, ip: "someone-else" });
+	await service.react({
+		slug,
+		reaction: "like",
+		reader: READER,
+		ip: "someone-else",
+	});
 });
