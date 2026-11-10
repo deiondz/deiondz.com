@@ -16,6 +16,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 		{ url: "https://deiondz.com/" },
 		{ url: "https://deiondz.com/blog/", lastModified: latestUpdate },
 		{ url: "https://deiondz.com/blog/feed/", lastModified: latestUpdate },
+		{ url: "https://deiondz.com/guestbook/" },
 		...articles.map((article) => ({
 			url: articleUrl(article.slug),
 			lastModified: article.updatedAt,

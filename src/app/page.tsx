@@ -454,6 +454,9 @@ export default function HomePage() {
 							<Link data-cuelume-navigate="" href="/blog/">
 								write ups
 							</Link>
+							<Link data-cuelume-navigate="" href="/guestbook/">
+								guestbook
+							</Link>
 						</div>
 					</div>
 				</header>
