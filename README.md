@@ -52,6 +52,63 @@ an error for blog requests; the homepage stays available.
 After a build, `node --test scripts/ssr.test.mjs` exercises publishing, editing,
 unpublishing, new article routes, RSS and sitemap updates without rebuilding.
 
+## Guestbook
+
+`/guestbook/` lets visitors sign in with GitHub or Google and leave a message.
+Signed-in visitors can like entries. Authors can delete their own messages.
+Owners listed in `GUESTBOOK_ADMIN_EMAILS` can pin and delete any message.
+Messages are plain text up to 500 characters. Each account can post 3 per hour,
+with 30 seconds between posts. Repeat visitors get a "Back again" badge.
+
+Auth uses [Better Auth](https://better-auth.com) with SQLite (`better-sqlite3`).
+On the first request, the server creates or updates Better Auth's tables and
+the guestbook tables, so there is no separate migrate step. A sign-in button
+appears only when both of that provider's credentials are set.
+
+OAuth apps:
+
+- GitHub: https://github.com/settings/developers → New OAuth App. Callback URL:
+  `https://deiondz.com/api/auth/callback/github`. Local:
+  `http://localhost:3000/api/auth/callback/github`. GitHub allows one callback per
+  app, so use a separate app for local development.
+- Google: Google Cloud console → APIs & Services → Credentials → OAuth client ID
+  (Web application). Authorized redirect URIs:
+  `https://deiondz.com/api/auth/callback/google` and
+  `http://localhost:3000/api/auth/callback/google`.
+
+Copy the guestbook variables from `.env.example` into `.env.local`. Generate
+`BETTER_AUTH_SECRET` with `openssl rand -base64 32`. The local database lives in
+`.data/guestbook.db`, which git ignores.
+
+Production setup, one time, on `deion` as root:
+
+```sh
+install -d -o portfolio-deploy -g portfolio-deploy -m 750 /var/www/deiondz.com/data
+```
+
+Add these lines to `/etc/portfolio.env`, then run `systemctl restart portfolio.service`:
+
+```sh
+BETTER_AUTH_SECRET=<random 32+ bytes>
+BETTER_AUTH_URL=https://deiondz.com
+GITHUB_CLIENT_ID=...
+GITHUB_CLIENT_SECRET=...
+GOOGLE_CLIENT_ID=...
+GOOGLE_CLIENT_SECRET=...
+GUESTBOOK_DATABASE_PATH=/var/www/deiondz.com/data/guestbook.db
+GUESTBOOK_ADMIN_EMAILS=deiondsouza12@gmail.com
+```
+
+The database must stay outside `releases/`, because each deploy swaps the
+`current` symlink. `/var/www/deiondz.com` is already the service's only writable
+path. `better-sqlite3` ships N-API prebuilds, which need Node.js 22 or newer.
+They work across Node versions, so the server's
+`/opt/strapi-runtime/bin/node -v` does not have to match CI's Node 24.
+`next.config.js` traces the Linux prebuilds into the standalone artifact.
+
+Back up the database while the site is running:
+`sqlite3 /var/www/deiondz.com/data/guestbook.db ".backup guestbook-$(date +%F).db"`.
+
 ## Local development
 
 Requires Node.js 24 and Bun 1.4.2.

@@ -1,0 +1,438 @@
+/* Guestbook: the portfolio's light palette and 640px column, laid out after
+   a sign-in card, a counted message list, and stacked entries. */
+.page-shell.guestbook-page {
+	overflow: clip;
+}
+.guestbook-shell {
+	min-height: 100vh;
+	padding-bottom: 64px;
+}
+.guestbook-page .bottom-grid {
+	height: 260px;
+}
+.guestbook-shell :focus-visible {
+	outline: 2px solid #18181b;
+	outline-offset: 3px;
+}
+.guestbook-nav,
+.guestbook-footer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 24px;
+	color: #52525b;
+	font-size: var(--text-ui);
+}
+.guestbook-nav a:hover,
+.guestbook-footer a:hover {
+	text-decoration: underline;
+	text-underline-offset: 3px;
+}
+.guestbook-icon-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+}
+.guestbook-footer {
+	margin-top: 48px;
+}
+
+.guestbook-hero {
+	margin: 48px 0 32px;
+}
+.guestbook-hero h1 {
+	font-size: 2.5rem;
+}
+.guestbook-hero p {
+	margin-top: 12px;
+	color: #3f3f46;
+	font-size: var(--text-section);
+	line-height: 1.4;
+}
+.guestbook-hero mark {
+	padding: 0 2px;
+	background: linear-gradient(
+		transparent 40%,
+		#f8e6a0 40%,
+		#f8e6a0 92%,
+		transparent 92%
+	);
+	color: #18181b;
+	font-weight: 500;
+}
+
+.guestbook-panel {
+	overflow: hidden;
+	border: 1px solid #e4e4e7;
+	border-radius: 12px;
+	background: #fff;
+}
+
+/* Sign-in card */
+.guestbook-intro {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 24px;
+	padding: 24px;
+	background: #fafafa;
+	border-bottom: 1px solid #e4e4e7;
+}
+.guestbook-intro h2 {
+	margin: 0 0 4px;
+	font-size: var(--text-body);
+	font-weight: 600;
+}
+.guestbook-intro p {
+	color: #52525b;
+	font-size: var(--text-ui);
+	text-wrap: pretty;
+}
+.guestbook-intro code {
+	display: block;
+	margin-top: 8px;
+	color: #71717a;
+	font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+	font-size: var(--text-caption);
+}
+.guestbook-sign-in {
+	display: grid;
+	flex: none;
+	gap: 8px;
+}
+
+.guestbook-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	min-height: 40px;
+	border: 1px solid #18181b;
+	border-radius: 6px;
+	padding: 8px 14px;
+	background: #18181b;
+	color: #fff;
+	font-size: var(--text-ui);
+	font-weight: 500;
+	white-space: nowrap;
+	transition:
+		background-color 150ms ease,
+		transform 120ms ease;
+}
+.guestbook-button:hover:not(:disabled) {
+	background: #27272a;
+}
+.guestbook-button:active:not(:disabled) {
+	transform: scale(0.97);
+}
+.guestbook-button:disabled {
+	cursor: not-allowed;
+	opacity: 0.55;
+}
+.guestbook-button[aria-busy="true"] {
+	cursor: wait;
+}
+.guestbook-button-outline {
+	border-color: #d4d4d8;
+	background: #fff;
+	color: #18181b;
+}
+.guestbook-button-outline:hover:not(:disabled) {
+	border-color: #a1a1aa;
+	background: #fff;
+}
+
+.guestbook-message {
+	color: #52525b;
+	font-size: var(--text-ui);
+}
+.guestbook-message:empty {
+	display: none;
+}
+.guestbook-message[data-error="true"] {
+	color: #b91c1c;
+}
+
+/* Composer */
+.guestbook-composer {
+	display: grid;
+	gap: 12px;
+	padding: 20px 24px;
+	background: #fafafa;
+	border-bottom: 1px solid #e4e4e7;
+}
+.guestbook-composer-who {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	color: #52525b;
+	font-size: var(--text-ui);
+}
+.guestbook-composer-who strong {
+	color: #18181b;
+	font-weight: 600;
+}
+.guestbook-link-button {
+	border: 0;
+	padding: 0;
+	background: none;
+	color: inherit;
+	text-decoration: underline;
+	text-underline-offset: 3px;
+}
+.guestbook-link-button:hover {
+	color: #18181b;
+}
+.guestbook-composer textarea {
+	width: 100%;
+	min-height: 88px;
+	resize: vertical;
+	border: 1px solid #d4d4d8;
+	border-radius: 8px;
+	padding: 10px 12px;
+	background: #fff;
+	color: #18181b;
+	font: inherit;
+	font-size: 16px;
+	line-height: 1.5;
+}
+.guestbook-composer textarea:focus-visible {
+	outline: 2px solid #18181b;
+	outline-offset: 0;
+	border-color: transparent;
+}
+.guestbook-composer-footer {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 8px 12px;
+}
+.guestbook-composer-footer .guestbook-message {
+	margin-right: auto;
+}
+.guestbook-counter {
+	color: #71717a;
+	font-size: var(--text-caption);
+	font-variant-numeric: tabular-nums;
+}
+.guestbook-counter[data-near] {
+	color: #b45309;
+}
+
+/* Message list */
+.guestbook-list-heading {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 12px 24px;
+	border-bottom: 1px solid #e4e4e7;
+}
+.guestbook-list-heading h2 {
+	margin: 0;
+	color: #52525b;
+	font-size: var(--text-ui);
+	font-weight: 500;
+}
+.guestbook-list-heading > span {
+	min-width: 28px;
+	border-radius: 999px;
+	padding: 1px 8px;
+	background: #f4f4f5;
+	color: #3f3f46;
+	font-size: var(--text-caption);
+	font-weight: 600;
+	text-align: center;
+	font-variant-numeric: tabular-nums;
+}
+.guestbook-list {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+.guestbook-entry {
+	display: flex;
+	gap: 14px;
+	padding: 20px 24px;
+}
+.guestbook-entry + .guestbook-entry {
+	border-top: 1px solid #f4f4f5;
+}
+.guestbook-entry[data-pinned] {
+	box-shadow: inset 2px 0 0 #18181b;
+}
+.guestbook-entry > article {
+	flex: 1;
+	min-width: 0;
+}
+.guestbook-avatar {
+	display: grid;
+	flex: none;
+	place-items: center;
+	width: 36px;
+	height: 36px;
+	border-radius: 50%;
+	object-fit: cover;
+	background: #f4f4f5;
+	box-shadow: 0 0 0 1px #e4e4e7;
+	color: #52525b;
+	font-size: var(--text-ui);
+	font-weight: 600;
+}
+.guestbook-composer-who .guestbook-avatar {
+	width: 28px;
+	height: 28px;
+}
+.guestbook-entry-meta {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 4px 6px;
+	color: #71717a;
+	font-size: var(--text-ui);
+	line-height: 1.4;
+}
+.guestbook-entry-meta strong {
+	overflow-wrap: anywhere;
+	color: #18181b;
+	font-weight: 600;
+}
+.guestbook-number {
+	font-variant-numeric: tabular-nums;
+}
+.guestbook-pinned {
+	display: inline-flex;
+	color: #18181b;
+}
+.guestbook-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	border: 1px solid #e4e4e7;
+	border-radius: 999px;
+	padding: 0 8px;
+	color: #3f3f46;
+	font-size: var(--text-caption);
+	font-weight: 500;
+	line-height: 1.6;
+}
+.guestbook-actions {
+	display: inline-flex;
+	gap: 2px;
+	margin-left: auto;
+}
+.guestbook-actions button {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	min-width: 28px;
+	min-height: 28px;
+	justify-content: center;
+	border: 0;
+	border-radius: 6px;
+	padding: 0 6px;
+	background: none;
+	color: #a1a1aa;
+	font-size: var(--text-caption);
+}
+.guestbook-actions button:hover:not(:disabled) {
+	background: #f4f4f5;
+	color: #18181b;
+}
+.guestbook-actions button[data-confirming] {
+	background: #fef2f2;
+	color: #b91c1c;
+}
+.guestbook-body {
+	margin-top: 4px;
+	color: #27272a;
+	line-height: 1.55;
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+	text-wrap: pretty;
+}
+.guestbook-like {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	min-height: 32px;
+	margin-top: 10px;
+	border: 1px solid #e4e4e7;
+	border-radius: 8px;
+	padding: 4px 10px;
+	background: #fff;
+	color: #52525b;
+	font-size: var(--text-ui);
+	font-weight: 500;
+	font-variant-numeric: tabular-nums;
+	transition:
+		border-color 150ms ease,
+		color 150ms ease,
+		transform 120ms ease;
+}
+.guestbook-like:hover:not(:disabled) {
+	border-color: #a1a1aa;
+	color: #18181b;
+}
+.guestbook-like:active:not(:disabled) {
+	transform: scale(0.94);
+}
+.guestbook-like:disabled {
+	cursor: default;
+}
+.guestbook-like[aria-pressed="true"] {
+	border-color: #fecdd3;
+	background: #fff1f2;
+	color: #e11d48;
+}
+.guestbook-like[aria-pressed="true"] svg {
+	fill: currentColor;
+}
+.guestbook-empty {
+	padding: 32px 24px;
+	color: #71717a;
+	font-size: var(--text-ui);
+	text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.guestbook-button,
+	.guestbook-like {
+		transition: none;
+	}
+}
+@media (max-width: 699px) {
+	.guestbook-intro {
+		flex-direction: column;
+	}
+	.guestbook-sign-in {
+		width: 100%;
+	}
+}
+@media (max-width: 480px) {
+	.guestbook-hero h1 {
+		font-size: 2rem;
+	}
+	.guestbook-hero p {
+		font-size: 1.125rem;
+	}
+	.guestbook-intro,
+	.guestbook-composer {
+		padding: 16px;
+	}
+	.guestbook-list-heading,
+	.guestbook-entry {
+		padding-inline: 16px;
+	}
+	.guestbook-entry {
+		gap: 10px;
+	}
+	.guestbook-avatar {
+		width: 32px;
+		height: 32px;
+	}
+	.guestbook-composer-footer .guestbook-button {
+		width: 100%;
+	}
+}
