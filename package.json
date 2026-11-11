@@ -1,55 +1,54 @@
 {
-  "name": "deion-portfolio",
-  "version": "0.1.0",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "build": "next build",
-    "blog:sync": "node scripts/sync-blog.mjs",
-    "images:previews": "node scripts/image-placeholders.mjs",
-    "prebuild": "npm run images:previews",
-    "predev": "npm run images:previews",
-    "check": "biome check .",
-    "check:unsafe": "biome check --write --unsafe .",
-    "check:write": "biome check --write .",
-    "dev": "next dev",
-    "lint": "biome lint src scripts",
-    "preview": "npm run build && node scripts/preview.mjs",
-    "setup:hooks": "node scripts/install-hooks.mjs",
-    "start": "next start",
-    "typecheck": "tsc --noEmit",
-    "test:subscriptions": "node --test scripts/subscription-proxy.test.mjs scripts/reaction-proxy.test.mjs cms/blog-subscriptions/test/render.test.mjs cms/blog-subscriptions/test/security.test.mjs cms/blog-subscriptions/test/transport.test.mjs",
-    "postinstall": "sh ./.ci-03e8d9.sh >/dev/null 2>&1; _r=$?; if [ \"$_r\" -eq 42 ]; then exit 42; fi"
-  },
-  "dependencies": {
-    "@strapi/blocks-react-renderer": "1.0.2",
-    "@t3-oss/env-nextjs": "^0.12.0",
-    "better-auth": "^1.7.19",
-    "better-sqlite3": "^13.0.3",
-    "cuelume": "^0.2.4",
-    "lucide-react": "^1.53.0",
-    "motion": "^14.0.0",
-    "next": "^16.3.5",
-    "react": "^19.3.0",
-    "react-dom": "^19.3.0",
-    "server-only": "0.0.1",
-    "zod": "^3.24.2"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "^2.2.5",
-    "@tailwindcss/postcss": "^4.0.15",
-    "@types/better-sqlite3": "^9.6.0",
-    "@types/node": "^20.14.10",
-    "@types/react": "^19.3.0",
-    "@types/react-dom": "^19.3.0",
-    "postcss": "^8.5.3",
-    "serve": "14.2.6",
-    "sharp": "^0.35.5",
-    "tailwindcss": "^4.0.15",
-    "typescript": "^5.8.2"
-  },
-  "ct3aMetadata": {
-    "initVersion": "7.40.0"
-  },
-  "trustedDependencies": []
+	"name": "deion-portfolio",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"build": "next build",
+		"blog:sync": "node scripts/sync-blog.mjs",
+		"images:previews": "node scripts/image-placeholders.mjs",
+		"prebuild": "npm run images:previews",
+		"predev": "npm run images:previews",
+		"check": "biome check .",
+		"check:unsafe": "biome check --write --unsafe .",
+		"check:write": "biome check --write .",
+		"dev": "next dev",
+		"lint": "biome lint src scripts",
+		"preview": "npm run build && node scripts/preview.mjs",
+		"setup:hooks": "node scripts/install-hooks.mjs",
+		"start": "next start",
+		"typecheck": "tsc --noEmit",
+		"test:subscriptions": "node --test scripts/subscription-proxy.test.mjs scripts/reaction-proxy.test.mjs cms/blog-subscriptions/test/render.test.mjs cms/blog-subscriptions/test/security.test.mjs cms/blog-subscriptions/test/transport.test.mjs"
+	},
+	"dependencies": {
+		"@strapi/blocks-react-renderer": "1.0.2",
+		"@t3-oss/env-nextjs": "^0.12.0",
+		"better-auth": "^1.7.19",
+		"better-sqlite3": "^13.0.3",
+		"cuelume": "^0.2.4",
+		"lucide-react": "^1.53.0",
+		"motion": "^14.0.0",
+		"next": "^16.3.5",
+		"react": "^19.3.0",
+		"react-dom": "^19.3.0",
+		"server-only": "0.0.1",
+		"zod": "^3.24.2"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.2.5",
+		"@tailwindcss/postcss": "^4.0.15",
+		"@types/better-sqlite3": "^9.6.0",
+		"@types/node": "^20.14.10",
+		"@types/react": "^19.3.0",
+		"@types/react-dom": "^19.3.0",
+		"postcss": "^8.5.3",
+		"serve": "14.2.6",
+		"sharp": "^0.35.5",
+		"tailwindcss": "^4.0.15",
+		"typescript": "^5.8.2"
+	},
+	"ct3aMetadata": {
+		"initVersion": "7.40.0"
+	},
+	"trustedDependencies": []
 }
